@@ -1,2 +1,25 @@
-# discord-command-framework-js
-Easy to use discord-bot library built on discord-js
+```
+Pattern:
+commandgroup{
+command(
+attribute,
+parameter
+)
+subcommand(
+attribute,
+parameter
+)
+}
+subcommandgroup{
+subcommand(
+attribute,
+parameter
+)
+}
+commandarea {
+subcommand(
+attribute,
+parameter
+)
+}
+```
