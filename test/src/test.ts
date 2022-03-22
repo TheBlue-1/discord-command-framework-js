@@ -1,5 +1,5 @@
-import { Bot } from '../bot';
-import { initGlobalErrorHandlers } from '../error-handling';
+import { Bot, initGlobalErrorHandlers } from 'discord-command-framework-js';
+
 import * as config from './local.config.json';
 import * as TestCommandGroups from './testCommandGroups';
 

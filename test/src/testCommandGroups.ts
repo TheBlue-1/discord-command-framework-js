@@ -1,7 +1,18 @@
 import { ChannelTypes } from 'discord.js/typings/enums';
 
-import { command, commandArea, commandGroup, subCommand, subCommandGroup } from '../Decorators/command';
-import { channel, channelParam, choice, minmax, param, user } from '../Decorators/parameter';
+import {
+    channel,
+    channelParam,
+    choice,
+    command,
+    commandArea,
+    commandGroup,
+    minmax,
+    param,
+    subCommand,
+    subCommandGroup,
+    user,
+} from '../../src';
 
 @commandGroup("tcg1")
 export class TestModule1 {

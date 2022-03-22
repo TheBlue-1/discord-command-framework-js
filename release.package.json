@@ -1,0 +1,9 @@
+{
+  "name": "discord-command-framework-js",
+  "author": "Maximilian Mayrhofer",
+  "version": "0.0.1",
+  "dependencies": {
+    "discord.js": "^13.1.0",
+    "rxjs": "^7.3.0"
+  }
+}
