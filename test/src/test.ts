@@ -3,7 +3,7 @@ import { Bot, initGlobalErrorHandlers } from 'discord-command-framework-js';
 import * as config from './local.config.json';
 import * as TestCommandGroups from './testCommandGroups';
 
-TestCommandGroups;//init (dont removes import)
+TestCommandGroups;//init (doesn't remove import)
 
 function start() {
   initGlobalErrorHandlers();
