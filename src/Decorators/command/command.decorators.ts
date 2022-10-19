@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { parameterRegister } from "../parameter/parameter.helpers";
 import {
   commandRegister,
@@ -24,9 +23,8 @@ export function command(
   description: string,
   options: CommandOptions = {}
 ) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return function (
-    target: any & { constructor: Function },
+    target: any & { constructor: new () => void },
     propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
@@ -37,7 +35,7 @@ export function command(
     commandRegister[target.constructor.name][propertyKey] = new Command(
       name,
       description,
-      <Function>target[propertyKey],
+      target[propertyKey],
       targetInstanceMap[target.constructor.name],
       options,
       parameterRegister[target.constructor.name][propertyKey]
@@ -49,9 +47,8 @@ export function subCommand(
   description: string,
   options: CommandOptions = {}
 ) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return function (
-    target: any & { constructor: Function },
+    target: any & { constructor: new () => void },
     propertyKey: string,
     descriptor: PropertyDescriptor
   ): void {
@@ -62,7 +59,7 @@ export function subCommand(
     subCommandRegister[target.constructor.name][name] = new SubCommand(
       name,
       description,
-      <Function>target[propertyKey],
+      target[propertyKey],
       targetInstanceMap[target.constructor.name],
       options,
       parameterRegister[target.constructor.name][propertyKey]
@@ -123,7 +120,6 @@ export function subCommandGroup(
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function commandArea(
   commandGroup: new () => any,
   name: string,

@@ -1,7 +1,13 @@
-import { CommandInteraction } from 'discord.js';
-import { Observable, Observer, OperatorFunction, Subscription, UnaryFunction } from 'rxjs';
-import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
-import { isSubscription } from 'rxjs/internal/Subscription';
+import { CommandInteraction } from "discord.js";
+import {
+  Observable,
+  Observer,
+  OperatorFunction,
+  Subscription,
+  UnaryFunction,
+} from "rxjs";
+import { SafeSubscriber, Subscriber } from "rxjs/internal/Subscriber";
+import { isSubscription } from "rxjs/internal/Subscription";
 
 // global error handling (before shutdown)
 
@@ -149,8 +155,9 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
       complete = complete?.bind(context);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const noop = () => {};
+    const noop = () => {
+      //does nothing
+    };
     const defaultErrorHandler = (err: any) => {
       throw err;
     };

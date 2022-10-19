@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { PermissionString } from "discord.js";
 import {
   InteractionParameter,
@@ -50,7 +49,7 @@ export abstract class CallableCommand extends DescribedConfigurable {
     name: string,
     description: string,
 
-    public callable: Function,
+    public callable: () => void,
     public parentInstance: any,
     options: CommandOptions,
     public parameters: (InteractionParameter | InteractionAttribute)[]
@@ -63,7 +62,7 @@ export class Command extends CallableCommand {
   constructor(
     name: string,
     description: string,
-    callable: Function,
+    callable: () => void,
     parentInstance: any,
     options: CommandOptions,
     parameters: (InteractionParameter | InteractionAttribute)[] = []
@@ -88,7 +87,7 @@ export class SubCommand extends CallableCommand {
   constructor(
     name: string,
     description: string,
-    callable: Function,
+    callable: () => void,
     parentInstance: any,
     options: CommandOptions,
     parameters: (InteractionParameter | InteractionAttribute)[] = []

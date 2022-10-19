@@ -33,8 +33,7 @@ export class InteractionAttribute {
 }
 
 export type AttributeName = keyof {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [Property in keyof CommandInteraction as CommandInteraction[Property] extends Function
+  [Property in keyof CommandInteraction as CommandInteraction[Property] extends () => void
     ? never
     : Property]: undefined;
 };
