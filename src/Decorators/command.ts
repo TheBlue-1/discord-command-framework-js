@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { PermissionString } from 'discord.js';
+import { PermissionString } from "discord.js";
 
-import { InteractionAttribute, InteractionParameter, parameterRegister } from './parameter';
+import {
+  InteractionAttribute,
+  InteractionParameter,
+  parameterRegister,
+} from "./parameter";
 
 export function commandGroupRegister() {
   const commandGroupRegister: CommandGroupRegister = {};
