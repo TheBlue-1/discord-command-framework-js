@@ -24,12 +24,11 @@ import {
   ApplicationCommandTypes,
   ChannelTypes,
 } from "discord.js/typings/enums";
-
-import { CommandGroupRegister } from "./Decorators/command/command.decorators";
+import { CommandGroupRegister } from "./Decorators/command/command.helpers";
 import {
-  InteractionAttribute,
   InteractionParameter,
-} from "./Decorators/parameter/parameter.decorators";
+  InteractionAttribute,
+} from "./Decorators/parameter/parameter.types";
 
 export class SlashCommandGenerator {
   public generate(groups: CommandGroupRegister): SlashCommand[] {

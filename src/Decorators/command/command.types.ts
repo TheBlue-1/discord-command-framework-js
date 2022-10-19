@@ -49,7 +49,7 @@ export abstract class CallableCommand extends DescribedConfigurable {
     name: string,
     description: string,
 
-    public callable: () => void,
+    public callable: (...params: any[]) => void,
     public parentInstance: any,
     options: CommandOptions,
     public parameters: (InteractionParameter | InteractionAttribute)[]
@@ -62,7 +62,7 @@ export class Command extends CallableCommand {
   constructor(
     name: string,
     description: string,
-    callable: () => void,
+    callable: (...params: any[]) => void,
     parentInstance: any,
     options: CommandOptions,
     parameters: (InteractionParameter | InteractionAttribute)[] = []
@@ -87,7 +87,7 @@ export class SubCommand extends CallableCommand {
   constructor(
     name: string,
     description: string,
-    callable: () => void,
+    callable: (...params: any[]) => void,
     parentInstance: any,
     options: CommandOptions,
     parameters: (InteractionParameter | InteractionAttribute)[] = []

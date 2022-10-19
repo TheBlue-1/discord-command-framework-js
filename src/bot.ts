@@ -7,11 +7,11 @@ import {
   Interaction,
 } from "discord.js";
 import { map, Observable, takeWhile } from "rxjs";
-
 import {
   CommandGroupRegister,
   commandGroupRegister,
-} from "./Decorators/command/command.decorators";
+} from "./Decorators/command/command.helpers";
+
 import { handleObservableErrors } from "./error-handling";
 import { Interpreter } from "./interpreter";
 import { SlashCommand, SlashCommandGenerator } from "./slash-command-generator";
