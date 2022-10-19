@@ -1,8 +1,13 @@
-import { CommandInteraction } from 'discord.js';
-import { ApplicationCommandOptionTypes } from 'discord.js/typings/enums';
-import { Observable } from 'rxjs';
+import { CommandInteraction } from "discord.js";
+import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
+import { Observable } from "rxjs";
 
-import { Command, CommandArea, CommandGroupRegister, SubCommand } from './Decorators/command';
+import {
+  Command,
+  CommandArea,
+  CommandGroupRegister,
+  SubCommand,
+} from "./Decorators/command/command.decorators";
 
 export class Interpreter {
   protected commandAreas: { [name: string]: CommandArea } = {};
