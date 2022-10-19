@@ -18,11 +18,18 @@ import {
   CommandOptionNumericResolvableType,
   CommandOptionSubOptionResolvableType,
   ExcludeEnum,
-} from 'discord.js';
-import { ApplicationCommandOptionTypes, ApplicationCommandTypes, ChannelTypes } from 'discord.js/typings/enums';
+} from "discord.js";
+import {
+  ApplicationCommandOptionTypes,
+  ApplicationCommandTypes,
+  ChannelTypes,
+} from "discord.js/typings/enums";
 
-import { CommandGroupRegister } from './Decorators/command';
-import { InteractionAttribute, InteractionParameter } from './Decorators/parameter';
+import { CommandGroupRegister } from "./Decorators/command/command.decorators";
+import {
+  InteractionAttribute,
+  InteractionParameter,
+} from "./Decorators/parameter/parameter.decorators";
 
 export class SlashCommandGenerator {
   public generate(groups: CommandGroupRegister): SlashCommand[] {

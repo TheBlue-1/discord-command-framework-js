@@ -1,10 +1,20 @@
-import { AutocompleteInteraction, Client, ClientEvents, ClientOptions, CommandInteraction, Interaction } from 'discord.js';
-import { map, Observable, takeWhile } from 'rxjs';
+import {
+  AutocompleteInteraction,
+  Client,
+  ClientEvents,
+  ClientOptions,
+  CommandInteraction,
+  Interaction,
+} from "discord.js";
+import { map, Observable, takeWhile } from "rxjs";
 
-import { CommandGroupRegister, commandGroupRegister } from './Decorators/command';
-import { handleObservableErrors } from './error-handling';
-import { Interpreter } from './interpreter';
-import { SlashCommand, SlashCommandGenerator } from './slash-command-generator';
+import {
+  CommandGroupRegister,
+  commandGroupRegister,
+} from "./Decorators/command/command.decorators";
+import { handleObservableErrors } from "./error-handling";
+import { Interpreter } from "./interpreter";
+import { SlashCommand, SlashCommandGenerator } from "./slash-command-generator";
 
 export class Bot {
   protected autocompleteParameter$: Observable<AutocompleteInteraction>;
