@@ -1,0 +1,33 @@
+name: "Checks"
+on:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  type-check:
+    name: "Type Check"
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    permissions:
+      contents: read # This is required to checkout the repo
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - run: pnpx type-check
+  lint:
+    name: "Lint"
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    permissions:
+      contents: read # This is required to checkout the repo
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - run: pnpx lint
