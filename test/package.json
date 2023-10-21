@@ -4,7 +4,9 @@
   "description": "tests",
   "main": "test.ts",
   "scripts": {
-    "test": "nodemon --inspect ./src/test.ts"
+    "test": "nodemon --inspect ./src/test.ts",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "type-check": "pnpm tsc -p ./tsconfig.json --noEmit"
   },
   "devDependencies": {
     "nodemon": "^2.0.15",

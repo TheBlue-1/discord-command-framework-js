@@ -1,5 +1,4 @@
 import type {
-  ApplicationCommand,
   ApplicationCommandAutocompleteOption,
   ApplicationCommandChannelOptionData,
   ApplicationCommandChoicesData,
@@ -31,73 +30,32 @@ import type {
 } from "./Decorators/parameter/parameter.types";
 
 export class SlashCommand implements ChatInputApplicationCommandData {
-  public type: ApplicationCommandTypes.CHAT_INPUT | "CHAT_INPUT" =
-    ApplicationCommandTypes.CHAT_INPUT;
+  public type = ApplicationCommandTypes.CHAT_INPUT as const;
 
   public constructor(
     public name: string,
     public description: string,
     public options: CommandParameterOption[] | SubCommandOptions[],
   ) {}
-
-  public deepEquals(other: ApplicationCommand): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== "CHAT_INPUT") return false;
-    if (other.description !== this.description) return false;
-    if (other.options.length !== this.options.length) return false;
-    for (let i = 0; i < this.options.length; i++) {
-      if (!this.options[i].deepEquals(other.options[i])) return false;
-    }
-    return true;
-  }
 }
 
-export class SubCommandGroupOption
-  implements ApplicationCommandSubGroupData, DeepEqualsOption
-{
-  public type:
-    | ApplicationCommandOptionTypes.SUB_COMMAND_GROUP
-    | "SUB_COMMAND_GROUP" = ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
+export class SubCommandGroupOption implements ApplicationCommandSubGroupData {
+  public type = ApplicationCommandOptionTypes.SUB_COMMAND_GROUP as const;
 
   public constructor(
     public name: string,
     public description: string,
     public options: SubCommandOption[],
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== "SUB_COMMAND_GROUP") return false;
-    if (other.description !== this.description) return false;
-    if (other.options.length !== this.options.length) return false;
-    for (let i = 0; i < this.options.length; i++) {
-      if (!this.options[i].deepEquals(other.options[i])) return false;
-    }
-    return true;
-  }
 }
-export class SubCommandOption
-  implements ApplicationCommandSubCommandData, DeepEqualsOption
-{
-  public type: ApplicationCommandOptionTypes.SUB_COMMAND | "SUB_COMMAND" =
-    ApplicationCommandOptionTypes.SUB_COMMAND;
+export class SubCommandOption implements ApplicationCommandSubCommandData {
+  public type = ApplicationCommandOptionTypes.SUB_COMMAND as const;
 
   public constructor(
     public name: string,
     public description: string,
     public options: CommandParameterOption[],
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== "SUB_COMMAND") return false;
-    if (other.description !== this.description) return false;
-    if (other.options.length !== this.options.length) return false;
-    for (let i = 0; i < this.options.length; i++) {
-      if (!this.options[i].deepEquals(other.options[i])) return false;
-    }
-    return true;
-  }
 }
 
 export type CommandParameterOption =
@@ -167,7 +125,9 @@ export class CommandChannelOption
     public name: string,
     public description: string,
     public required: boolean,
-    public channelTypes: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
+    public channelTypes:
+      | ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[]
+      | undefined,
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -181,9 +141,7 @@ export class CommandChannelOption
   }
 }
 
-export class CommandChoiceOption
-  implements ApplicationCommandChoicesData, DeepEqualsOption
-{
+export class CommandChoiceOption implements ApplicationCommandChoicesData {
   public constructor(
     public type: CommandOptionChoiceResolvableType,
     public name: string,
@@ -191,19 +149,6 @@ export class CommandChoiceOption
     public choices: CommandChoice<number | string>[],
     public required: boolean,
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== this.type) return false;
-    if (other.description !== this.description) return false;
-    if (other.required !== this.required) return false;
-    if (other.choices.length !== this.choices.length) return false;
-    for (let i = 0; i < this.choices.length; i++) {
-      if (this.choices[i].name !== other.choices[i].name) return false;
-      if (this.choices[i].value !== other.choices[i].value) return false;
-    }
-    return true;
-  }
 }
 export class CommandMinMaxOption
   implements ApplicationCommandNumericOptionData, DeepEqualsOption
@@ -213,8 +158,8 @@ export class CommandMinMaxOption
     public name: string,
     public description: string,
     public required: boolean,
-    public minValue: number,
-    public maxValue: number,
+    public minValue: number | undefined,
+    public maxValue: number | undefined,
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -324,7 +269,7 @@ export class SlashCommandGenerator {
       }
 
       let options: CommandParameterOption;
-      parameter.type = this.toEnumType(parameter.type);
+      parameter.type = SlashCommandGenerator.toEnumType(parameter.type);
       switch (parameter.type) {
         case ApplicationCommandOptionTypes.BOOLEAN:
         case ApplicationCommandOptionTypes.USER:
@@ -393,20 +338,28 @@ export class SlashCommandGenerator {
   ): ApplicationCommandOptionTypes & CommandOptionParameterType {
     switch (type) {
       case "BOOLEAN":
+      case ApplicationCommandOptionTypes.BOOLEAN:
         return ApplicationCommandOptionTypes.BOOLEAN;
       case "USER":
+      case ApplicationCommandOptionTypes.USER:
         return ApplicationCommandOptionTypes.USER;
       case "ROLE":
+      case ApplicationCommandOptionTypes.ROLE:
         return ApplicationCommandOptionTypes.ROLE;
       case "MENTIONABLE":
+      case ApplicationCommandOptionTypes.MENTIONABLE:
         return ApplicationCommandOptionTypes.MENTIONABLE;
       case "CHANNEL":
+      case ApplicationCommandOptionTypes.CHANNEL:
         return ApplicationCommandOptionTypes.CHANNEL;
       case "INTEGER":
+      case ApplicationCommandOptionTypes.INTEGER:
         return ApplicationCommandOptionTypes.INTEGER;
       case "NUMBER":
+      case ApplicationCommandOptionTypes.NUMBER:
         return ApplicationCommandOptionTypes.NUMBER;
       case "STRING":
+      case ApplicationCommandOptionTypes.STRING:
         return ApplicationCommandOptionTypes.STRING;
     }
   }

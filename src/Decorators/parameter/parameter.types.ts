@@ -15,11 +15,11 @@ export class InteractionParameter {
     public type: CommandOptionParameterType,
     public options: {
       optional?: boolean;
-      defaultValue?: boolean;
-      channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[];
+      defaultValue?: unknown;
+      channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[] | undefined;
       choices?: CommandChoice<number | string>[];
-      minValue?: number;
-      maxValue?: number;
+      minValue?: number | undefined;
+      maxValue?: number | undefined;
       autocompletions?: (number | string)[];
     },
   ) {

@@ -35,7 +35,7 @@ export class Interpreter {
 
     // TODO (guess: use options)
 
-    const parameters = this.prepareParameters(command, interaction);
+    const parameters = Interpreter.prepareParameters(command, interaction);
 
     await interaction.reply("command is being executed...");
     // TODO multiple replies
@@ -50,14 +50,13 @@ export class Interpreter {
     if (interaction.options.getSubcommand(false) === null) {
       return this.commands[interaction.commandName];
     }
+    const commandArea = this.commandAreas[interaction.commandName];
     if (interaction.options.getSubcommandGroup(false) === null) {
-      return this.commandAreas[interaction.commandName].subCommands[
-        interaction.options.getSubcommand()
-      ];
+      return commandArea?.subCommands[interaction.options.getSubcommand()];
     }
-    return this.commandAreas[interaction.commandName].subCommandGroups[
-      interaction.options.getSubcommandGroup()
-    ].subCommands[interaction.options.getSubcommand()];
+    const subCommandGroup =
+      commandArea?.subCommandGroups[interaction.options.getSubcommandGroup()];
+    return subCommandGroup?.subCommands[interaction.options.getSubcommand()];
   }
 
   protected static prepareParameters(

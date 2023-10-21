@@ -8,6 +8,7 @@ import type {
   CommandChoice,
   CommandOptionParameterType,
 } from "../../slash-command-generator";
+import { paramDecorator } from "../helpers";
 import { setParam } from "./parameter.helpers";
 import {
   InteractionAttribute,
@@ -21,11 +22,7 @@ export function Param(
   type: CommandOptionParameterType = "STRING",
   defaultValue?: unknown,
 ) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
@@ -34,7 +31,7 @@ export function Param(
         defaultValue,
       }),
     );
-  };
+  });
 }
 export function Autocomplete(
   name: string,
@@ -43,11 +40,7 @@ export function Autocomplete(
   type: CommandOptionChoiceResolvableType = "STRING",
   defaultValue?: unknown,
 ) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
@@ -57,7 +50,7 @@ export function Autocomplete(
         autocompletions,
       }),
     );
-  };
+  });
 }
 
 export function Choice<T extends number | string>(
@@ -67,11 +60,7 @@ export function Choice<T extends number | string>(
   type: T extends number ? "INTEGER" | "NUMBER" : "STRING",
   defaultValue?: unknown,
 ) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
@@ -81,7 +70,7 @@ export function Choice<T extends number | string>(
         choices,
       }),
     );
-  };
+  });
 }
 export function Minmax(
   name: string,
@@ -91,11 +80,7 @@ export function Minmax(
   type: CommandOptionNumericResolvableType = "NUMBER",
   defaultValue?: unknown,
 ) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
@@ -106,7 +91,7 @@ export function Minmax(
         maxValue: max,
       }),
     );
-  };
+  });
 }
 export function ChannelParam(
   name: string,
@@ -114,11 +99,7 @@ export function ChannelParam(
   channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
   defaultValue?: unknown,
 ) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
@@ -128,22 +109,18 @@ export function ChannelParam(
         channelTypes,
       }),
     );
-  };
+  });
 }
 
 export function Attribute(name: AttributeName) {
-  return function (
-    target: { constructor: new () => unknown },
-    propertyKey: string,
-    index: number,
-  ): void {
+  return paramDecorator((target, propertyKey, index) => {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionAttribute(name),
     );
-  };
+  });
 }
 
 export function User(): ReturnType<typeof Attribute> {

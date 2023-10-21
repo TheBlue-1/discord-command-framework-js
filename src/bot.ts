@@ -12,6 +12,7 @@ import {
   type CommandGroupRegister,
 } from "./Decorators/command/command.helpers";
 
+import deepEquals from "fast-deep-equal";
 import {
   handleObservableErrors,
   type ErrorHandlingObservable,
@@ -121,7 +122,8 @@ export class Bot {
       }
       const [oldCommand] = oldCommands.splice(oldIndex, 1);
       if (!oldCommand) throw new Error("impossible case reached");
-      if (command.deepEquals(oldCommand)) {
+      // TODO make sure oldCommand also has type as enum value
+      if (deepEquals(command, oldCommand)) {
         continue;
       }
       calls.push(this.client.application.commands.edit(oldCommand, command));
