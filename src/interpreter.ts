@@ -28,12 +28,12 @@ export class Interpreter {
   public async callCommand(interaction: CommandInteraction) {
     const command = this.findCommand(interaction);
     if (!command) {
-      interaction.reply("command not found");
+      await interaction.reply("command not found");
       return;
     }
-    const options = command.getOptions();
+    // const options = command.getOptions();
 
-    // TODO
+    // TODO (guess: use options)
 
     const parameters = this.prepareParameters(command, interaction);
 

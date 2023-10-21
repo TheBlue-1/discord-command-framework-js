@@ -1,13 +1,6 @@
 import type { CommandInteraction } from "discord.js";
-import {
-  Observable,
-  type Observer,
-  type OperatorFunction,
-  type Subscription,
-  type UnaryFunction,
-} from "rxjs";
-import { SafeSubscriber, Subscriber } from "rxjs/internal/Subscriber";
-import { isSubscription } from "rxjs/internal/Subscription";
+import { Observable, type Observer, type Subscription } from "rxjs";
+import { SafeSubscriber } from "rxjs/internal/Subscriber";
 
 // global error handling (before shutdown)
 
@@ -161,13 +154,16 @@ export function errorHandler(error: unknown, args?: unknown[]) {
 
 export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   public constructor(
-    observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
-    error?: ((e?: unknown) => void) | null,
-    complete?: (() => void) | null,
+    observerOrNext?:
+      | Partial<Observer<T>>
+      | ((value: T) => Promise<void> | void)
+      | null,
+    error?: ((error: unknown) => Promise<void> | void) | null,
+    complete?: (() => Promise<void> | void) | null,
   ) {
     super();
 
-    let next: ((value: T) => void) | undefined;
+    let next: ((value: T) => Promise<void>) | ((value: T) => void) | undefined;
     if (typeof observerOrNext === "function") {
       next = observerOrNext;
     } else if (observerOrNext) {
@@ -199,13 +195,14 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
       : noop;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function parameter
-  public static wrapForErrorHandling<T extends (...args: any[]) => void>(
-    handler: T,
-  ) {
+  public static wrapForErrorHandling<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function parameter
+    T extends (...args: any[]) => Promise<void> | void,
+  >(handler: T) {
     return (...args: Parameters<T>) => {
       try {
-        handler(...args);
+        const res = handler(...args);
+        if (res instanceof Promise) res.catch((err) => errorHandler(err, args));
       } catch (err) {
         setTimeout(() => errorHandler(err, args));
       }
@@ -213,9 +210,6 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   }
 }
 export class ErrorHandlingObservable<T> extends Observable<T> {
-  protected _subscribe: unknown;
-  protected _trySubscribe: unknown;
-
   public static fromObservable<T>(
     observable: Observable<T>,
   ): ErrorHandlingObservable<T> {
@@ -229,54 +223,14 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
     return errorHandlingObservable as ErrorHandlingObservable<T>;
   }
 
-  public static isObserver<T>(value: unknown): value is Observer<T> {
-    return (
-      typeof value.next === "function" &&
-      typeof value.error === "function" &&
-      typeof value.complete === "function"
-    );
-  }
-
-  public static isSubscriber<T>(value: unknown): value is Subscriber<T> {
-    return (
-      value instanceof Subscriber ||
-      (ErrorHandlingObservable.isObserver(value) && isSubscription(value))
-    );
-  }
-
-  public identity<T>(x: T): T {
-    return x;
-  }
-
-  public pipe(
-    ...operations: OperatorFunction<unknown, unknown>[]
-  ): ErrorHandlingObservable<unknown> {
-    return ErrorHandlingObservable.fromObservable(
-      this.pipeFromArray(operations)(this),
-    );
-  }
-
-  public pipeFromArray<T, R>(fns: UnaryFunction<T, R>[]): UnaryFunction<T, R> {
-    if (fns.length === 0) {
-      return this.identity as UnaryFunction<unknown, unknown>;
-    }
-
-    if (fns.length === 1) {
-      return fns[0];
-    }
-
-    return function piped(input: T): R {
-      return fns.reduce<unknown>(
-        (prev: unknown, fn: UnaryFunction<T, R>) => fn(prev),
-        input,
-      );
-    };
-  }
-
   public override subscribe(
-    observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
-    error?: ((error: unknown) => void) | null,
-    complete?: (() => void) | null,
+    observerOrNext?:
+      | Partial<Observer<T>>
+      | ((value: T) => Promise<void>)
+      | ((value: T) => void)
+      | null,
+    error?: ((error: unknown) => Promise<void> | void) | null,
+    complete?: (() => Promise<void> | void) | null,
   ): Subscription {
     const subscriber = new ErrorHandlingSubscriber(
       observerOrNext,
@@ -284,17 +238,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
       complete,
     );
 
-    const { operator, source } = this;
-
-    subscriber.add(
-      operator
-        ? operator.call(subscriber, source)
-        : source
-        ? this._subscribe(subscriber)
-        : this._trySubscribe(subscriber),
-    );
-
-    return subscriber;
+    return super.subscribe(subscriber);
   }
 }
 

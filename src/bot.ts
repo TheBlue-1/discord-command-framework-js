@@ -120,6 +120,7 @@ export class Bot {
         continue;
       }
       const [oldCommand] = oldCommands.splice(oldIndex, 1);
+      if (!oldCommand) throw new Error("impossible case reached");
       if (command.deepEquals(oldCommand)) {
         continue;
       }
