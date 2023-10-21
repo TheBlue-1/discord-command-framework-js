@@ -28,6 +28,7 @@ import type {
   InteractionAttribute,
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
+import { unreachable } from "./utilities";
 
 export class SlashCommand implements ChatInputApplicationCommandData {
   public type = ApplicationCommandTypes.CHAT_INPUT as const;
@@ -307,7 +308,23 @@ export class SlashCommandGenerator {
             );
             break;
           }
-        // falls through
+          if (parameter.options.choices !== undefined) {
+            options = new CommandChoiceOption(
+              parameter.type,
+              parameter.name,
+              parameter.description,
+              parameter.options.choices,
+              !(parameter.options.optional ?? false),
+            );
+            break;
+          }
+          options = new CommandAutocompleteOption(
+            parameter.type,
+            parameter.name,
+            parameter.description,
+            !(parameter.options.optional ?? false),
+          );
+          break;
         case ApplicationCommandOptionTypes.STRING:
           if (parameter.options.choices !== undefined) {
             options = new CommandChoiceOption(
@@ -361,6 +378,9 @@ export class SlashCommandGenerator {
       case "STRING":
       case ApplicationCommandOptionTypes.STRING:
         return ApplicationCommandOptionTypes.STRING;
+
+      default:
+        return unreachable(type);
     }
   }
 }
