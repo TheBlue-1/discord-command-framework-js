@@ -30,7 +30,6 @@
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
     "declarationMap": true,
-    "exactOptionalPropertyTypes": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitOverride": true
   },

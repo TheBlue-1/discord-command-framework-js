@@ -3,9 +3,7 @@ import type {
   ApplicationCommandChannelOptionData,
   ApplicationCommandChoicesData,
   ApplicationCommandNonOptionsData,
-  ApplicationCommandNumericOption,
   ApplicationCommandNumericOptionData,
-  ApplicationCommandOption,
   ApplicationCommandOptionChoice,
   ApplicationCommandSubCommandData,
   ApplicationCommandSubGroupData,
@@ -70,7 +68,7 @@ export type CommandSimpleOption =
   | CommandNoOptionsOption;
 
 export class CommandNoOptionsOption
-  implements ApplicationCommandNonOptionsData, DeepEqualsOption
+  implements ApplicationCommandNonOptionsData
 {
   public constructor(
     public type: CommandOptionNonChoiceResolvableType,
@@ -78,20 +76,12 @@ export class CommandNoOptionsOption
     public description: string,
     public required: boolean,
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== this.type) return false;
-    if (other.description !== this.description) return false;
-    if (other.required !== this.required) return false;
-    return true;
-  }
 }
 
 export class CommandAutocompleteOption
-  implements ApplicationCommandAutocompleteOption, DeepEqualsOption
+  implements ApplicationCommandAutocompleteOption
 {
-  public autocomplete: true = true;
+  public autocomplete = true as const;
 
   public constructor(
     public type:
@@ -107,19 +97,9 @@ export class CommandAutocompleteOption
   ) {
     this.autocomplete = false as true; // TODO think of something
   }
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== this.type) return false;
-    if (other.description !== this.description) return false;
-    if (other.required !== this.required) return false;
-    if ((other.autocomplete as boolean) !== this.autocomplete) return false;
-
-    return true;
-  }
 }
 export class CommandChannelOption
-  implements ApplicationCommandChannelOptionData, DeepEqualsOption
+  implements ApplicationCommandChannelOptionData
 {
   public constructor(
     public type: CommandOptionChannelResolvableType,
@@ -130,16 +110,6 @@ export class CommandChannelOption
       | ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[]
       | undefined,
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== this.type) return false;
-    if (other.description !== this.description) return false;
-    if (other.required !== this.required) return false;
-    if (other.channelTypes !== this.channelTypes) return false;
-
-    return true;
-  }
 }
 
 export class CommandChoiceOption implements ApplicationCommandChoicesData {
@@ -152,7 +122,7 @@ export class CommandChoiceOption implements ApplicationCommandChoicesData {
   ) {}
 }
 export class CommandMinMaxOption
-  implements ApplicationCommandNumericOptionData, DeepEqualsOption
+  implements ApplicationCommandNumericOptionData
 {
   public constructor(
     public type: CommandOptionNumericResolvableType,
@@ -162,21 +132,6 @@ export class CommandMinMaxOption
     public minValue: number | undefined,
     public maxValue: number | undefined,
   ) {}
-
-  public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name !== this.name) return false;
-    if (other.type !== this.type) return false;
-    if (other.description !== this.description) return false;
-    if (other.required !== this.required) return false;
-    if ((other as ApplicationCommandNumericOption).minValue !== this.minValue) {
-      return false;
-    }
-    if ((other as ApplicationCommandNumericOption).maxValue !== this.maxValue) {
-      return false;
-    }
-
-    return true;
-  }
 }
 export class CommandChoice<T extends number | string>
   implements ApplicationCommandOptionChoice
@@ -190,9 +145,6 @@ export type CommandOptionParameterType = Exclude<
   CommandOptionDataTypeResolvable,
   CommandOptionSubOptionResolvableType
 >;
-export interface DeepEqualsOption {
-  deepEquals(other: ApplicationCommandOption): boolean;
-}
 
 export class SlashCommandGenerator {
   public generate(groups: CommandGroupRegister): SlashCommand[] {

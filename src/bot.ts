@@ -6,13 +6,12 @@ import {
   type CommandInteraction,
   type Interaction,
 } from "discord.js";
+import deepEquals from "fast-deep-equal";
 import { Observable, map, takeWhile } from "rxjs";
 import {
   commandGroupRegister,
   type CommandGroupRegister,
 } from "./Decorators/command/command.helpers";
-
-import deepEquals from "fast-deep-equal";
 import {
   handleObservableErrors,
   type ErrorHandlingObservable,
