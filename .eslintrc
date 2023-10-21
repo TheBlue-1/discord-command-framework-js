@@ -1,6 +1,5 @@
 {
   "root": true,
-  "ignorePatterns": ["**/*"],
   "plugins": ["jsdoc", "deprecation", "prettier", "import"],
   "overrides": [
     {
@@ -123,7 +122,11 @@
       }
     },
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "tsconfigRootDir": "./"
+      },
       "extends": [
         "plugin:@typescript-eslint/recommended-type-checked",
         "plugin:@typescript-eslint/strict-type-checked"
@@ -251,7 +254,7 @@
       }
     },
     {
-      "files": ["*.js", "*.jsx"],
+      "files": ["*.js"],
       "extends": [],
       "rules": {}
     },

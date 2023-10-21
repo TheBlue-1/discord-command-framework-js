@@ -6,21 +6,24 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "rimraf ./dist && tsc && cp README.md dist/ && cp release.package.json dist/package.json",
-    "lint": "eslint . --ext .ts",
-    "type-check": "pnpm tsc -p ./tsconfig.json --noEmit",
-    "lint": "pnpm eslint . --quiet true"
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint2": "pnpm eslint . --quiet true",
+    "type-check": "pnpm tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
     "discord.js": "^13.1.0",
-    "glob": "^7.2.0",
-    "rimraf": "^3.0.2",
     "rxjs": "^7.3.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.21",
-    "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
-    "eslint": "^8.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "eslint": "^8.52.0",
+    "eslint-plugin-deprecation": "^2.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jsdoc": "^46.8.2",
+    "eslint-plugin-prettier": "^5.0.1",
+    "rimraf": "^5.0.5",
     "ts-node": "^10.7.0",
     "typescript": "^5.2.2"
   }
