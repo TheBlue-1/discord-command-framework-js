@@ -1,24 +1,24 @@
 import { parameterRegister } from "../parameter/parameter.helpers";
 import {
-  commandRegister,
-  targetInstanceMap,
-  subCommandRegister,
   commandAreaRegister,
+  commandRegister,
+  flatCommandAreaRegister,
   rawCommandGroupRegister,
   setParentForChildren,
   subCommandGroupRegister,
-  flatCommandAreaRegister,
+  subCommandRegister,
+  targetInstanceMap,
 } from "./command.helpers";
 import {
+  CommandAreaInfo,
+  CommandGroupInfo,
+  CommandInfo,
   CommandOptions,
-  Command,
-  SubCommand,
-  CommandGroup,
-  SubCommandGroup,
-  CommandArea,
+  SubCommandGroupInfo,
+  SubCommandInfo,
 } from "./command.types";
 
-export function command(
+export function Command(
   name: string,
   description: string,
   options: CommandOptions = {}
@@ -32,7 +32,7 @@ export function command(
       commandRegister[target.constructor.name] = {};
     if (targetInstanceMap[target.constructor.name] == undefined)
       targetInstanceMap[target.constructor.name] = new target.constructor();
-    commandRegister[target.constructor.name][propertyKey] = new Command(
+    commandRegister[target.constructor.name][propertyKey] = new CommandInfo(
       name,
       description,
       target[propertyKey],
@@ -42,7 +42,7 @@ export function command(
     );
   };
 }
-export function subCommand(
+export function SubCommand(
   name: string,
   description: string,
   options: CommandOptions = {}
@@ -56,7 +56,7 @@ export function subCommand(
       targetInstanceMap[target.constructor.name] = new target.constructor();
     if (subCommandRegister[target.constructor.name] == undefined)
       subCommandRegister[target.constructor.name] = {};
-    subCommandRegister[target.constructor.name][name] = new SubCommand(
+    subCommandRegister[target.constructor.name][name] = new SubCommandInfo(
       name,
       description,
       target[propertyKey],
@@ -67,7 +67,7 @@ export function subCommand(
   };
 }
 
-export function commandGroup(name: string, options: CommandOptions = {}) {
+export function CommandGroup(name: string, options: CommandOptions = {}) {
   return function (target: new () => any): void {
     if (commandRegister[target.name] == undefined)
       commandRegister[target.name] = {};
@@ -75,7 +75,7 @@ export function commandGroup(name: string, options: CommandOptions = {}) {
     if (commandAreaRegister[target.name] == undefined)
       commandAreaRegister[target.name] = {};
 
-    rawCommandGroupRegister[name] = new CommandGroup(
+    rawCommandGroupRegister[name] = new CommandGroupInfo(
       name,
       options,
       commandRegister[target.name],
@@ -91,7 +91,7 @@ export function commandGroup(name: string, options: CommandOptions = {}) {
     );
   };
 }
-export function subCommandGroup(
+export function SubCommandGroup(
   commandArea: new () => any,
   name: string,
   description: string,
@@ -103,7 +103,7 @@ export function subCommandGroup(
 
     if (subCommandRegister[target.name] == undefined)
       subCommandRegister[target.name] = {};
-    subCommandGroupRegister[commandArea.name][name] = new SubCommandGroup(
+    subCommandGroupRegister[commandArea.name][name] = new SubCommandGroupInfo(
       name,
       description,
       options,
@@ -120,7 +120,7 @@ export function subCommandGroup(
   };
 }
 
-export function commandArea(
+export function CommandArea(
   commandGroup: new () => any,
   name: string,
   description: string,
@@ -134,7 +134,7 @@ export function commandArea(
     if (subCommandRegister[target.name] == undefined)
       subCommandRegister[target.name] = {};
 
-    commandAreaRegister[commandGroup.name][name] = new CommandArea(
+    commandAreaRegister[commandGroup.name][name] = new CommandAreaInfo(
       name,
       description,
       options,

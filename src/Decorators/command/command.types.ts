@@ -1,7 +1,7 @@
 import { PermissionString } from "discord.js";
 import {
-  InteractionParameter,
   InteractionAttribute,
+  InteractionParameter,
 } from "../parameter/parameter.types";
 
 export type CommandOptions = {
@@ -44,7 +44,7 @@ export abstract class DescribedConfigurable extends Configurable {
     super(name, options);
   }
 }
-export abstract class CallableCommand extends DescribedConfigurable {
+export abstract class CallableCommandInfo extends DescribedConfigurable {
   constructor(
     name: string,
     description: string,
@@ -58,7 +58,7 @@ export abstract class CallableCommand extends DescribedConfigurable {
   }
 }
 
-export class Command extends CallableCommand {
+export class CommandInfo extends CallableCommandInfo {
   constructor(
     name: string,
     description: string,
@@ -71,19 +71,19 @@ export class Command extends CallableCommand {
   }
 }
 
-export class CommandArea extends DescribedConfigurable {
+export class CommandAreaInfo extends DescribedConfigurable {
   constructor(
     name: string,
     description: string,
     options: CommandOptions,
-    public subCommands: { [name: string]: SubCommand },
-    public subCommandGroups: { [name: string]: SubCommandGroup }
+    public subCommands: { [name: string]: SubCommandInfo },
+    public subCommandGroups: { [name: string]: SubCommandGroupInfo }
   ) {
     super(name, description, options);
   }
 }
 
-export class SubCommand extends CallableCommand {
+export class SubCommandInfo extends CallableCommandInfo {
   constructor(
     name: string,
     description: string,
@@ -96,22 +96,22 @@ export class SubCommand extends CallableCommand {
   }
 }
 
-export class SubCommandGroup extends DescribedConfigurable {
+export class SubCommandGroupInfo extends DescribedConfigurable {
   constructor(
     name: string,
     description: string,
     options: CommandOptions,
-    public subCommands: { [name: string]: SubCommand } = {}
+    public subCommands: { [name: string]: SubCommandInfo } = {}
   ) {
     super(name, description, options);
   }
 }
-export class CommandGroup extends Configurable {
+export class CommandGroupInfo extends Configurable {
   constructor(
     name: string,
     options: CommandOptions,
-    public commands: { [name: string]: Command },
-    public commandAreas: { [name: string]: CommandArea }
+    public commands: { [name: string]: CommandInfo },
+    public commandAreas: { [name: string]: CommandAreaInfo }
   ) {
     super(name, options);
   }

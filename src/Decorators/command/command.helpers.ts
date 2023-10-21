@@ -1,10 +1,10 @@
 import {
-  CommandGroup,
-  Command,
-  CommandArea,
-  SubCommand,
-  SubCommandGroup,
+  CommandAreaInfo,
+  CommandGroupInfo,
+  CommandInfo,
   Configurable,
+  SubCommandGroupInfo,
+  SubCommandInfo,
 } from "./command.types";
 
 export function commandGroupRegister() {
@@ -40,28 +40,28 @@ export function commandGroupRegister() {
   }
   return commandGroupRegister;
 }
-export type CommandGroupRegister = { [className: string]: CommandGroup };
+export type CommandGroupRegister = { [className: string]: CommandGroupInfo };
 export const rawCommandGroupRegister: CommandGroupRegister = {};
 export const commandRegister: {
-  [commandGroupClassName: string]: { [methodName: string]: Command };
+  [commandGroupClassName: string]: { [methodName: string]: CommandInfo };
 } = {};
 export const commandAreaRegister: {
-  [commandGroupClassName: string]: { [className: string]: CommandArea };
+  [commandGroupClassName: string]: { [className: string]: CommandAreaInfo };
 } = {};
 export function flatCommandAreaRegister(): {
-  [className: string]: CommandArea;
+  [className: string]: CommandAreaInfo;
 } {
-  const commandAreas: { [className: string]: CommandArea } = {};
+  const commandAreas: { [className: string]: CommandAreaInfo } = {};
   for (const group of Object.values(commandAreaRegister)) {
     Object.assign(commandAreas, group);
   }
   return commandAreas;
 }
 export const subCommandRegister: {
-  [parentClassName: string]: { [methodName: string]: SubCommand };
+  [parentClassName: string]: { [methodName: string]: SubCommandInfo };
 } = {};
 export const subCommandGroupRegister: {
-  [commandAreaClassName: string]: { [className: string]: SubCommandGroup };
+  [commandAreaClassName: string]: { [className: string]: SubCommandGroupInfo };
 } = {};
 export const targetInstanceMap: { [targetName: string]: any } = {};
 

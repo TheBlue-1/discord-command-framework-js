@@ -4,19 +4,18 @@ import {
   ExcludeEnum,
 } from "discord.js";
 import { ChannelTypes } from "discord.js/typings/enums";
-
 import {
   CommandChoice,
   CommandOptionParameterType,
 } from "../../slash-command-generator";
 import { setParam } from "./parameter.helpers";
 import {
-  InteractionParameter,
   AttributeName,
   InteractionAttribute,
+  InteractionParameter,
 } from "./parameter.types";
 
-export function param(
+export function Param(
   name: string,
   description = "",
   type: CommandOptionParameterType = "STRING",
@@ -37,7 +36,7 @@ export function param(
     );
   };
 }
-export function autocomplete(
+export function Autocomplete(
   name: string,
   description = "",
   autocompletions: (string | number)[],
@@ -61,7 +60,7 @@ export function autocomplete(
   };
 }
 
-export function choice<T extends string | number>(
+export function Choice<T extends string | number>(
   name: string,
   description: string,
   choices: CommandChoice<T>[],
@@ -84,7 +83,7 @@ export function choice<T extends string | number>(
     );
   };
 }
-export function minmax(
+export function Minmax(
   name: string,
   description = "",
   min?: number,
@@ -109,7 +108,7 @@ export function minmax(
     );
   };
 }
-export function channelParam(
+export function ChannelParam(
   name: string,
   description = "",
   channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
@@ -132,14 +131,14 @@ export function channelParam(
   };
 }
 
-export function user(): ReturnType<typeof attribute> {
-  return attribute("user");
+export function User(): ReturnType<typeof Attribute> {
+  return Attribute("user");
 }
-export function channel(): ReturnType<typeof attribute> {
-  return attribute("channel");
+export function Channel(): ReturnType<typeof Attribute> {
+  return Attribute("channel");
 }
 
-export function attribute(name: AttributeName) {
+export function Attribute(name: AttributeName) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,

@@ -12,5 +12,6 @@
     "**/.factorypath": true,
     "**/node_modules": false
   },
-  "cSpell.words": ["autocompletions"]
+  "cSpell.words": ["autocompletions"],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

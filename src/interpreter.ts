@@ -3,14 +3,14 @@ import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 import { Observable } from "rxjs";
 import { CommandGroupRegister } from "./Decorators/command/command.helpers";
 import {
-  CommandArea,
-  Command,
-  SubCommand,
+  CommandAreaInfo,
+  CommandInfo,
+  SubCommandInfo,
 } from "./Decorators/command/command.types";
 
 export class Interpreter {
-  protected commandAreas: { [name: string]: CommandArea } = {};
-  protected commands: { [name: string]: Command } = {};
+  protected commandAreas: { [name: string]: CommandAreaInfo } = {};
+  protected commands: { [name: string]: CommandInfo } = {};
 
   constructor(
     private commandInteraction$: Observable<CommandInteraction>,
@@ -47,7 +47,9 @@ export class Interpreter {
     return;
   }
 
-  protected findCommand(interaction: CommandInteraction): Command | SubCommand {
+  protected findCommand(
+    interaction: CommandInteraction
+  ): CommandInfo | SubCommandInfo {
     if (!interaction.options.getSubcommand(false)) {
       return this.commands[interaction.commandName];
     }
@@ -62,7 +64,7 @@ export class Interpreter {
   }
 
   protected prepareParameters(
-    command: Command | SubCommand,
+    command: CommandInfo | SubCommandInfo,
     interaction: CommandInteraction
   ): any[] {
     const params: any[] = [];

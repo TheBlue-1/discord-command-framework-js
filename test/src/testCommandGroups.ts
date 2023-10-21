@@ -1,50 +1,49 @@
-import { ChannelTypes } from 'discord.js/typings/enums';
-
+import { ChannelTypes } from "discord.js/typings/enums";
 import {
-  channel,
-  channelParam,
-  choice,
-  command,
-  commandArea,
-  commandGroup,
-  minmax,
-  param,
-  subCommand,
-  subCommandGroup,
-  user,
-} from '../../src';
+  Channel,
+  ChannelParam,
+  Choice,
+  Command,
+  CommandArea,
+  CommandGroup,
+  Minmax,
+  Param,
+  SubCommand,
+  SubCommandGroup,
+  User,
+} from "../../src";
 
-@commandGroup("tcg1")
+@CommandGroup("tcg1")
 export class TestModule1 {
-  @command("tc1", "first command")
+  @Command("tc1", "first command")
   public testCommand1(
-    @channel() c: any,
-    @param("p1", "first param", "STRING", true) s: string
-  ): void {
-    return;
+    @Channel() c: any,
+    @Param("p1", "first param", "STRING", true) s: string
+  ) {
+    return "success";
   }
 }
-@commandArea(TestModule1, "tca1", "first command area")
+@CommandArea(TestModule1, "tca1", "first command area")
 export class TestCommandArea1 {
-  @subCommand("tsc1", "first subcommand")
+  @SubCommand("tsc1", "first subcommand")
   public testSubCommand1(
-    @user() u: any,
-    @param("p2", "second param", "NUMBER") n: number
-  ): void {
-    return;
+    @User() u: any,
+    @Param("p2", "second param", "NUMBER") n: number
+  ) {
+    return "success";
   }
 }
 
-@subCommandGroup(TestCommandArea1, "tscg1", "first subcommand group")
+@SubCommandGroup(TestCommandArea1, "tscg1", "first subcommand group")
 export class TestSubCommandGroup1 {
-  @subCommand("tsc2", "second subcommand")
-  public testSubCommand2(@param("p3", "third param", "USER") u: any) {
-    return;
+  @SubCommand("tsc2", "second subcommand")
+  public testSubCommand2(@Param("p3", "third param", "USER") u: any) {
+    return "success";
   }
 
-  @subCommand("tsc3", "third subcommand")
+  @SubCommand("tsc3", "third subcommand")
   public testSubCommand3(
-    @choice(
+    @Choice(
       "p42",
       "fourth param",
       [
@@ -56,19 +55,19 @@ export class TestSubCommandGroup1 {
     s: string
   ) {
     // type should be number
-    return;
+    return "success";
   }
 }
 
-@commandGroup("tcg2")
+@CommandGroup("tcg2")
 export class TestModule2 {
   public a = 9;
 
-  @command("tc2", "second command")
+  @Command("tc2", "second command")
   public testCommand2(
-    @minmax("p5", "fifth param", 3, 8, "NUMBER") n: number,
-    @channelParam("p6", "sixth param", [ChannelTypes.GUILD_VOICE]) c: any,
-    @choice(
+    @Minmax("p5", "fifth param", 3, 8, "NUMBER") n: number,
+    @ChannelParam("p6", "sixth param", [ChannelTypes.GUILD_VOICE]) c: any,
+    @Choice(
       "p7",
       "seventh param",
       [
