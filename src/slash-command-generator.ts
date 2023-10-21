@@ -101,7 +101,7 @@ export class SlashCommandGenerator {
   ): CommandParameterOption[] {
     const parameterOptions: CommandParameterOption[] = [];
     for (const parameter of parameters) {
-      if (parameter.methodParameterType == "attribute") {
+      if (parameter.methodParameterType === "attribute") {
         continue;
       }
 
@@ -131,8 +131,8 @@ export class SlashCommandGenerator {
         case ApplicationCommandOptionTypes.INTEGER:
         case ApplicationCommandOptionTypes.NUMBER:
           if (
-            parameter.options.minValue != undefined ||
-            parameter.options.maxValue != undefined
+            parameter.options.minValue !== undefined ||
+            parameter.options.maxValue !== undefined
           ) {
             options = new CommandMinMaxOption(
               parameter.type,
@@ -146,7 +146,7 @@ export class SlashCommandGenerator {
           }
         // falls through
         case ApplicationCommandOptionTypes.STRING:
-          if (parameter.options.choices != undefined) {
+          if (parameter.options.choices !== undefined) {
             options = new CommandChoiceOption(
               parameter.type,
               parameter.name,
@@ -205,10 +205,10 @@ export class SlashCommand implements ChatInputApplicationCommandData {
   ) {}
 
   public deepEquals(other: ApplicationCommand): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != "CHAT_INPUT") return false;
-    if (other.description != this.description) return false;
-    if (other.options.length != this.options.length) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== "CHAT_INPUT") return false;
+    if (other.description !== this.description) return false;
+    if (other.options.length !== this.options.length) return false;
     for (let i = 0; i < this.options.length; i++) {
       if (!this.options[i].deepEquals(other.options[i])) return false;
     }
@@ -230,10 +230,10 @@ export class SubCommandGroupOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != "SUB_COMMAND_GROUP") return false;
-    if (other.description != this.description) return false;
-    if (other.options.length != this.options.length) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== "SUB_COMMAND_GROUP") return false;
+    if (other.description !== this.description) return false;
+    if (other.options.length !== this.options.length) return false;
     for (let i = 0; i < this.options.length; i++) {
       if (!this.options[i].deepEquals(other.options[i])) return false;
     }
@@ -253,10 +253,10 @@ export class SubCommandOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != "SUB_COMMAND") return false;
-    if (other.description != this.description) return false;
-    if (other.options.length != this.options.length) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== "SUB_COMMAND") return false;
+    if (other.description !== this.description) return false;
+    if (other.options.length !== this.options.length) return false;
     for (let i = 0; i < this.options.length; i++) {
       if (!this.options[i].deepEquals(other.options[i])) return false;
     }
@@ -285,10 +285,10 @@ export class CommandNoOptionsOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != this.type) return false;
-    if (other.description != this.description) return false;
-    if (other.required != this.required) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== this.type) return false;
+    if (other.description !== this.description) return false;
+    if (other.required !== this.required) return false;
     return true;
   }
 }
@@ -314,11 +314,11 @@ export class CommandAutocompleteOption
   }
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != this.type) return false;
-    if (other.description != this.description) return false;
-    if (other.required != this.required) return false;
-    if ((other.autocomplete as boolean) != this.autocomplete) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== this.type) return false;
+    if (other.description !== this.description) return false;
+    if (other.required !== this.required) return false;
+    if ((other.autocomplete as boolean) !== this.autocomplete) return false;
 
     return true;
   }
@@ -335,11 +335,11 @@ export class CommandChannelOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != this.type) return false;
-    if (other.description != this.description) return false;
-    if (other.required != this.required) return false;
-    if (other.channelTypes != this.channelTypes) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== this.type) return false;
+    if (other.description !== this.description) return false;
+    if (other.required !== this.required) return false;
+    if (other.channelTypes !== this.channelTypes) return false;
 
     return true;
   }
@@ -357,14 +357,14 @@ export class CommandChoiceOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != this.type) return false;
-    if (other.description != this.description) return false;
-    if (other.required != this.required) return false;
-    if (other.choices.length != this.choices.length) return false;
+    if (other.name !== this.name) return false;
+    if (other.type !== this.type) return false;
+    if (other.description !== this.description) return false;
+    if (other.required !== this.required) return false;
+    if (other.choices.length !== this.choices.length) return false;
     for (let i = 0; i < this.choices.length; i++) {
-      if (this.choices[i].name != other.choices[i].name) return false;
-      if (this.choices[i].value != other.choices[i].value) return false;
+      if (this.choices[i].name !== other.choices[i].name) return false;
+      if (this.choices[i].value !== other.choices[i].value) return false;
     }
     return true;
   }
@@ -382,14 +382,14 @@ export class CommandMinMaxOption
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
-    if (other.name != this.name) return false;
-    if (other.type != this.type) return false;
-    if (other.description != this.description) return false;
-    if (other.required != this.required) return false;
-    if ((other as ApplicationCommandNumericOption).minValue != this.minValue) {
+    if (other.name !== this.name) return false;
+    if (other.type !== this.type) return false;
+    if (other.description !== this.description) return false;
+    if (other.required !== this.required) return false;
+    if ((other as ApplicationCommandNumericOption).minValue !== this.minValue) {
       return false;
     }
-    if ((other as ApplicationCommandNumericOption).maxValue != this.maxValue) {
+    if ((other as ApplicationCommandNumericOption).maxValue !== this.maxValue) {
       return false;
     }
 

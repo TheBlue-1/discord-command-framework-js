@@ -23,7 +23,7 @@ export class InteractionParameter {
       autocompletions?: (number | string)[];
     },
   ) {
-    if (options.defaultValue != undefined) options.optional = true;
+    if (options.defaultValue !== undefined) options.optional = true;
   }
 }
 export class InteractionAttribute {

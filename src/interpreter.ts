@@ -12,7 +12,7 @@ export class Interpreter {
   protected commandAreas: Record<string, CommandAreaInfo> = {};
   protected commands: Record<string, CommandInfo> = {};
 
-  constructor(
+  public constructor(
     private readonly commandInteraction$: Observable<CommandInteraction>,
     commandGroups: CommandGroupRegister,
   ) {
@@ -66,7 +66,7 @@ export class Interpreter {
   ): any[] {
     const params: any[] = [];
     for (const parameter of command.parameters) {
-      if (parameter.methodParameterType == "attribute") {
+      if (parameter.methodParameterType === "attribute") {
         params.push(interaction[parameter.name]);
         continue;
       }
@@ -137,8 +137,8 @@ export class Interpreter {
           );
       }
       if (
-        params[params.length - 1] == undefined &&
-        parameter.options.defaultValue != undefined
+        params[params.length - 1] === undefined &&
+        parameter.options.defaultValue !== undefined
       ) {
         params[params.length - 1] = parameter.options.defaultValue;
       }

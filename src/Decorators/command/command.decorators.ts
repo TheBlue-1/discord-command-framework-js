@@ -28,10 +28,10 @@ export function Command(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): void {
-    if (commandRegister[target.constructor.name] == undefined) {
+    if (commandRegister[target.constructor.name] === undefined) {
       commandRegister[target.constructor.name] = {};
     }
-    if (targetInstanceMap[target.constructor.name] == undefined) {
+    if (targetInstanceMap[target.constructor.name] === undefined) {
       targetInstanceMap[target.constructor.name] = new target.constructor();
     }
     commandRegister[target.constructor.name][propertyKey] = new CommandInfo(
@@ -54,10 +54,10 @@ export function SubCommand(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): void {
-    if (targetInstanceMap[target.constructor.name] == undefined) {
+    if (targetInstanceMap[target.constructor.name] === undefined) {
       targetInstanceMap[target.constructor.name] = new target.constructor();
     }
-    if (subCommandRegister[target.constructor.name] == undefined) {
+    if (subCommandRegister[target.constructor.name] === undefined) {
       subCommandRegister[target.constructor.name] = {};
     }
     subCommandRegister[target.constructor.name][name] = new SubCommandInfo(
@@ -73,11 +73,11 @@ export function SubCommand(
 
 export function CommandGroup(name: string, options: CommandOptions = {}) {
   return function (target: new () => any): void {
-    if (commandRegister[target.name] == undefined) {
+    if (commandRegister[target.name] === undefined) {
       commandRegister[target.name] = {};
     }
 
-    if (commandAreaRegister[target.name] == undefined) {
+    if (commandAreaRegister[target.name] === undefined) {
       commandAreaRegister[target.name] = {};
     }
 
@@ -104,11 +104,11 @@ export function SubCommandGroup(
   options: CommandOptions = {},
 ) {
   return function (target: new () => any): void {
-    if (subCommandGroupRegister[commandArea.name] == undefined) {
+    if (subCommandGroupRegister[commandArea.name] === undefined) {
       subCommandGroupRegister[commandArea.name] = {};
     }
 
-    if (subCommandRegister[target.name] == undefined) {
+    if (subCommandRegister[target.name] === undefined) {
       subCommandRegister[target.name] = {};
     }
     subCommandGroupRegister[commandArea.name][name] = new SubCommandGroupInfo(
@@ -136,13 +136,13 @@ export function CommandArea(
   options: CommandOptions = {},
 ) {
   return function (target: new () => any): void {
-    if (commandAreaRegister[commandGroup.name] == undefined) {
+    if (commandAreaRegister[commandGroup.name] === undefined) {
       commandAreaRegister[commandGroup.name] = {};
     }
-    if (subCommandGroupRegister[target.name] == undefined) {
+    if (subCommandGroupRegister[target.name] === undefined) {
       subCommandGroupRegister[target.name] = {};
     }
-    if (subCommandRegister[target.name] == undefined) {
+    if (subCommandRegister[target.name] === undefined) {
       subCommandRegister[target.name] = {};
     }
 

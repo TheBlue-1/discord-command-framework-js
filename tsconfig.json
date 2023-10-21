@@ -29,7 +29,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
-    "declarationMap": true
+    "declarationMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitOverride": true
   },
   "include": ["src/**/*"]
 }

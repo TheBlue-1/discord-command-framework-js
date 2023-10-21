@@ -15,12 +15,15 @@ export const setParam = (
   index: number,
   parameter: InteractionAttribute | InteractionParameter,
 ) => {
-  if (parameterRegister[className] == undefined) {
-    parameterRegister[className] = {};
-  }
-  if (parameterRegister[className][methodName] == undefined) {
-    parameterRegister[className][methodName] = [];
+  const classRecord = parameterRegister[className] ?? {};
+  if (parameterRegister[className] === undefined) {
+    parameterRegister[className] = classRecord;
   }
 
-  parameterRegister[className][methodName][index] = parameter;
+  const methodRecord = classRecord[methodName] ?? [];
+  if (classRecord[methodName] === undefined) {
+    classRecord[methodName] = methodRecord;
+  }
+
+  methodRecord[index] = parameter;
 };

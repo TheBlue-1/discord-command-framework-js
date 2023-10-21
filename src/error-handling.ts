@@ -38,9 +38,9 @@ export const globalDefaultHandler: GlobalErrorHandler = (
 ) => {
   console.log(
     `Program is about to ${!kill ? "(NOT) " : ""}exit${
-      exitCode == undefined ? "" : ` with code "${exitCode}"`
-    }${signal == undefined ? "" : ` with signal "${signal}"`}${
-      exception == undefined
+      exitCode === undefined ? "" : ` with code "${exitCode}"`
+    }${signal === undefined ? "" : ` with signal "${signal}"`}${
+      exception === undefined
         ? ""
         : ` with exception "${exception}" ${exception.stack}`
     }`,
@@ -109,7 +109,7 @@ export function errorHandler(error: any, args?: any[]) {
     interaction = arg0;
   }
 
-  if (error?.errorType == "BOT_ERROR") {
+  if (error?.errorType === "BOT_ERROR") {
     const botError: BotError = error;
 
     interaction.reply(`${botError}`);
@@ -117,7 +117,7 @@ export function errorHandler(error: any, args?: any[]) {
     if (botError.log) {
       console.warn(
         `An error occurred in a request: ${botError.message} (${botError})${
-          botError.log == "WITH_STACK" ? `\n${botError.stack}` : ""
+          botError.log === "WITH_STACK" ? `\n${botError.stack}` : ""
         }`,
       );
     }

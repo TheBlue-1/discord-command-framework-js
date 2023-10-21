@@ -20,21 +20,26 @@ import {
 } from "./slash-command-generator";
 
 export class Bot {
-  protected autocompleteParameter$: Observable<AutocompleteInteraction>;
-  protected commandGroups: CommandGroupRegister;
-  protected commandInteraction$: Observable<CommandInteraction>;
-  protected createdInteraction$: Observable<Interaction>;
-  protected interpreter: Interpreter;
+  protected data:
+    | {
+        commandGroups: CommandGroupRegister;
+        commandInteraction$: Observable<CommandInteraction>;
+        createdInteraction$: Observable<Interaction>;
+        autocompleteParameter$: Observable<AutocompleteInteraction>;
+        interpreter: Interpreter;
+        client: Client<true>;
+      }
+    | undefined = undefined;
 
-  public client: Client;
-
-  constructor(
-    private readonly token: string,
-    options: ClientOptions = { intents: [] },
-  ) {
-    this.client = new Client(options);
-    this.commandGroups = commandGroupRegister();
+  public get client() {
+    if (!this.data) throw new Error("bot not started");
+    return this.data.client;
   }
+
+  public constructor(
+    private readonly token: string,
+    protected readonly options: ClientOptions = { intents: [] },
+  ) {}
 
   public listenTo<T extends keyof ClientEvents>(
     event: T,
@@ -49,7 +54,7 @@ export class Bot {
     const observable = new Observable<ClientEvents[T] | ClientEvents[T][0]>(
       (subscriber) => {
         this.client.on(event, (...params: ClientEvents[T]) => {
-          if (params.length == 1) {
+          if (params.length === 1) {
             subscriber.next(params[0]);
           } else subscriber.next(params);
         });
@@ -59,32 +64,43 @@ export class Bot {
   }
 
   public async start(): Promise<void> {
+    console.log("bot preparing");
+    const newClient = new Client(this.options);
+    const commandGroups = commandGroupRegister();
+
     console.log("bot starting");
 
     const generator = new SlashCommandGenerator();
-    const commands = generator.generate(this.commandGroups);
+    const commands = generator.generate(commandGroups);
 
-    this.createdInteraction$ = this.listenTo("interactionCreate");
-    this.commandInteraction$ = this.createdInteraction$.pipe(
+    const createdInteraction$ = this.listenTo("interactionCreate");
+    const commandInteraction$ = createdInteraction$.pipe(
       takeWhile((i) => i.isCommand()),
       map((i) => i as CommandInteraction),
     );
-    this.interpreter = new Interpreter(
-      this.commandInteraction$,
-      this.commandGroups,
-    );
+    const interpreter = new Interpreter(commandInteraction$, commandGroups);
 
-    this.autocompleteParameter$ = this.createdInteraction$.pipe(
+    const autocompleteParameter$ = createdInteraction$.pipe(
       takeWhile((i) => i.isAutocomplete()),
       map((i) => i as AutocompleteInteraction),
     );
-    this.autocompleteParameter$.subscribe((s) => {
+    autocompleteParameter$.subscribe((s) => {
       s.respond([{ name: "a", value: "a" }]);
     });
     await this.client.login(this.token);
     console.log("bot online");
     await this.registerCommands(commands);
     console.log("commands registered");
+
+    this.data = {
+      client: newClient,
+      commandGroups,
+      commandInteraction$,
+
+      createdInteraction$,
+      autocompleteParameter$,
+      interpreter,
+    };
   }
 
   private async registerCommands(commands: SlashCommand[]) {
@@ -95,7 +111,8 @@ export class Bot {
     for (const command of commands) {
       let oldIndex;
       if (
-        (oldIndex = oldCommands.findIndex((c) => c.name == command.name)) != -1
+        (oldIndex = oldCommands.findIndex((c) => c.name === command.name)) !==
+        -1
       ) {
         this.client.application.commands.create(command);
         continue;
