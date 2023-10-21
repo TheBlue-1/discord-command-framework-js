@@ -28,13 +28,16 @@ export function Command(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): void {
+    const command = commandRegister[target.constructor.name] ?? {};
     if (commandRegister[target.constructor.name] === undefined) {
-      commandRegister[target.constructor.name] = {};
+      commandRegister[target.constructor.name] = command;
     }
+    const targetInstance =
+      targetInstanceMap[target.constructor.name] ?? new target.constructor();
     if (targetInstanceMap[target.constructor.name] === undefined) {
-      targetInstanceMap[target.constructor.name] = new target.constructor();
+      targetInstanceMap[target.constructor.name] = targetInstance;
     }
-    commandRegister[target.constructor.name][propertyKey] = new CommandInfo(
+    command[propertyKey] = new CommandInfo(
       name,
       description,
       target[propertyKey],
@@ -136,8 +139,9 @@ export function CommandArea(
   options: CommandOptions = {},
 ) {
   return function (target: new () => unknown): void {
+    const commandArea = commandAreaRegister[commandGroup.name] ?? {};
     if (commandAreaRegister[commandGroup.name] === undefined) {
-      commandAreaRegister[commandGroup.name] = {};
+      commandAreaRegister[commandGroup.name] = commandArea;
     }
     if (subCommandGroupRegister[target.name] === undefined) {
       subCommandGroupRegister[target.name] = {};
@@ -146,25 +150,17 @@ export function CommandArea(
       subCommandRegister[target.name] = {};
     }
 
-    commandAreaRegister[commandGroup.name][name] = new CommandAreaInfo(
+    commandArea[name] = new CommandAreaInfo(
       name,
       description,
       options,
       subCommandRegister[target.name],
       subCommandGroupRegister[target.name],
     );
-    setParentForChildren(
-      commandAreaRegister[commandGroup.name][name],
-      commandAreaRegister[commandGroup.name][name].subCommandGroups,
-    );
-    setParentForChildren(
-      commandAreaRegister[commandGroup.name][name],
-      commandAreaRegister[commandGroup.name][name].subCommands,
-    );
+    setParentForChildren(commandArea[name], commandArea[name].subCommandGroups);
+    setParentForChildren(commandArea[name], commandArea[name].subCommands);
     if (rawCommandGroupRegister[commandGroup.name]) {
-      commandAreaRegister[commandGroup.name][name].setParent(
-        rawCommandGroupRegister[commandGroup.name],
-      );
+      commandArea[name].setParent(rawCommandGroupRegister[commandGroup.name]);
     }
   };
 }

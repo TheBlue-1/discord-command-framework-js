@@ -12,7 +12,10 @@ import {
   type CommandGroupRegister,
 } from "./Decorators/command/command.helpers";
 
-import { handleObservableErrors } from "./error-handling";
+import {
+  handleObservableErrors,
+  type ErrorHandlingObservable,
+} from "./error-handling";
 import { Interpreter } from "./interpreter";
 import {
   SlashCommandGenerator,
@@ -43,14 +46,14 @@ export class Bot {
 
   public listenTo<T extends keyof ClientEvents>(
     event: T,
-  ): Observable<
+  ): ErrorHandlingObservable<
     ClientEvents[T] extends { 1: unknown }
       ? ClientEvents[T]
       : ClientEvents[T][0]
   >;
   public listenTo<T extends keyof ClientEvents>(
     event: T,
-  ): Observable<ClientEvents[T] | ClientEvents[T][0]> {
+  ): ErrorHandlingObservable<ClientEvents[T] | ClientEvents[T][0]> {
     const observable = new Observable<ClientEvents[T] | ClientEvents[T][0]>(
       (subscriber) => {
         this.client.on(event, (...params: ClientEvents[T]) => {

@@ -30,10 +30,10 @@ export const globalDefaultHandler: GlobalErrorHandler = (
     }${signal === undefined ? "" : ` with signal "${signal}"`}${
       exception === undefined
         ? ""
-        : ` with exception "${exception}" ${exception.stack}`
+        : ` with exception "${exception.message}" ${exception.stack}`
     }`,
   );
-  return kill;
+  return kill ?? false;
 };
 let currentGlobalErrorHandler: GlobalErrorHandler = globalDefaultHandler;
 
@@ -64,9 +64,9 @@ const globalHandlers = {
 };
 
 export function initGlobalErrorHandlers(
-  errorHandler: GlobalErrorHandler = globalDefaultHandler,
+  handler: GlobalErrorHandler = globalDefaultHandler,
 ): void {
-  currentGlobalErrorHandler = errorHandler;
+  currentGlobalErrorHandler = handler;
   process.on("SIGINT", globalHandlers.SIGINT);
   process.on("SIGHUP", globalHandlers.SIGHUP);
   process.on("SIGQUIT", globalHandlers.SIGQUIT);
@@ -94,44 +94,66 @@ export class BotError extends Error {
 
   public constructor(
     private readonly userMessage?: string,
-    message: string = userMessage,
+    message: string | undefined = userMessage,
     public log: boolean | "WITH_STACK" = false,
   ) {
     super(message);
   }
 
-  public toString() {
+  public override toString() {
     return this.userMessage ?? "an unknown error ocurred";
   }
 }
+
+function isCommandInteraction(val: unknown): val is CommandInteraction {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "isCommand" in val &&
+    typeof val.isCommand === "function" &&
+    Boolean(val.isCommand())
+  );
+}
+
+function isBotError(val: unknown): val is BotError {
+  return (
+    typeof val === "object" &&
+    val !== null &&
+    "errorType" in val &&
+    val.errorType === "BOT_ERROR"
+  );
+}
+
 export function errorHandler(error: unknown, args?: unknown[]) {
-  let interaction: CommandInteraction;
+  let interaction: CommandInteraction | undefined = undefined;
   const arg0 = args?.[0];
-  if (("isCommand" in arg0) & arg0.isCommand?.()) {
+  if (isCommandInteraction(arg0)) {
     interaction = arg0;
   }
 
-  if (error?.errorType === "BOT_ERROR") {
+  if (isBotError(error)) {
     const botError: BotError = error;
 
-    interaction.reply(`${botError}`).catch(() => {
+    interaction?.reply(`${botError.message}`).catch(() => {
       console.warn("couldn't reply after error");
     });
 
     if (botError.log !== false) {
       console.warn(
-        `An error occurred in a request: ${botError.message} (${botError})${
-          botError.log === "WITH_STACK" ? `\n${botError.stack}` : ""
-        }`,
+        `An error occurred in a request: ${botError.message} (${
+          botError.message
+        })${botError.log === "WITH_STACK" ? `\n${botError.stack}` : ""}`,
       );
     }
   } else {
     console.error(
-      `An unknown error occurred in a request: ${error}${
-        "stack" in error ? `\n${error.stack}` : ""
+      `An unknown error occurred in a request: ${String(error)}${
+        typeof error === "object" && error && "stack" in error
+          ? `\n${String(error.stack)}`
+          : ""
       }`,
     );
-    interaction.reply("an unexpected error ocurred").catch(() => {
+    interaction?.reply("an unexpected error ocurred").catch(() => {
       console.warn("couldn't reply after error");
     });
   }
@@ -164,25 +186,24 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
       throw err;
     };
 
-    this.destination = {
-      next: next
-        ? ErrorHandlingSubscriber.wrapForErrorHandling(next, this)
-        : noop,
-      error: ErrorHandlingSubscriber.wrapForErrorHandling(
-        error ?? defaultErrorHandler,
-        this,
-      ),
-      complete: complete
-        ? ErrorHandlingSubscriber.wrapForErrorHandling(complete, this)
-        : noop,
-    };
+    // following 3 were set in destination before
+    this.next = next
+      ? ErrorHandlingSubscriber.wrapForErrorHandling(next)
+      : noop;
+
+    this.error = ErrorHandlingSubscriber.wrapForErrorHandling(
+      error ?? defaultErrorHandler,
+    );
+    this.complete = complete
+      ? ErrorHandlingSubscriber.wrapForErrorHandling(complete)
+      : noop;
   }
 
-  public static wrapForErrorHandling(
-    handler: (arg?: unknown) => void,
-    instance: SafeSubscriber<unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function parameter
+  public static wrapForErrorHandling<T extends (...args: any[]) => void>(
+    handler: T,
   ) {
-    return async (...args: unknown[]) => {
+    return (...args: Parameters<T>) => {
       try {
         handler(...args);
       } catch (err) {
@@ -229,7 +250,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
   public pipe(
     ...operations: OperatorFunction<unknown, unknown>[]
-  ): Observable<unknown> {
+  ): ErrorHandlingObservable<unknown> {
     return ErrorHandlingObservable.fromObservable(
       this.pipeFromArray(operations)(this),
     );
@@ -252,14 +273,16 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
     };
   }
 
-  public subscribe(
+  public override subscribe(
     observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
     error?: ((error: unknown) => void) | null,
     complete?: (() => void) | null,
   ): Subscription {
-    const subscriber = ErrorHandlingObservable.isSubscriber(observerOrNext)
-      ? new ErrorHandlingSubscriber(observerOrNext)
-      : new ErrorHandlingSubscriber(observerOrNext, error, complete);
+    const subscriber = new ErrorHandlingSubscriber(
+      observerOrNext,
+      error,
+      complete,
+    );
 
     const { operator, source } = this;
 

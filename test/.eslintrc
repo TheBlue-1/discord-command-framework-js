@@ -1,0 +1,12 @@
+{
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "tsconfigRootDir": "./"
+      }
+    }
+  ],
+  "extends": ["../.eslintrc.js"]
+}
