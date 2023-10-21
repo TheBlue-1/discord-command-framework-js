@@ -131,13 +131,6 @@ export function ChannelParam(
   };
 }
 
-export function User(): ReturnType<typeof Attribute> {
-  return Attribute("user");
-}
-export function Channel(): ReturnType<typeof Attribute> {
-  return Attribute("channel");
-}
-
 export function Attribute(name: AttributeName) {
   return function (
     target: { constructor: new () => unknown },
@@ -151,4 +144,11 @@ export function Attribute(name: AttributeName) {
       new InteractionAttribute(name),
     );
   };
+}
+
+export function User(): ReturnType<typeof Attribute> {
+  return Attribute("user");
+}
+export function Channel(): ReturnType<typeof Attribute> {
+  return Attribute("channel");
 }

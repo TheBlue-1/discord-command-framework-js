@@ -7,6 +7,14 @@ import type {
   SubCommandInfo,
 } from "./command.types";
 
+export type CommandGroupRegister = Record<string, CommandGroupInfo>;
+export const rawCommandGroupRegister: CommandGroupRegister = {};
+export const commandRegister: Record<string, Record<string, CommandInfo>> = {};
+export const commandAreaRegister: Record<
+  string,
+  Record<string, CommandAreaInfo>
+> = {};
+
 export function commandGroupRegister() {
   const commandGroupRegister: CommandGroupRegister = {};
   for (const commandGroup of Object.values(rawCommandGroupRegister)) {
@@ -40,13 +48,7 @@ export function commandGroupRegister() {
   }
   return commandGroupRegister;
 }
-export type CommandGroupRegister = Record<string, CommandGroupInfo>;
-export const rawCommandGroupRegister: CommandGroupRegister = {};
-export const commandRegister: Record<string, Record<string, CommandInfo>> = {};
-export const commandAreaRegister: Record<
-  string,
-  Record<string, CommandAreaInfo>
-> = {};
+
 export function flatCommandAreaRegister(): Record<string, CommandAreaInfo> {
   const commandAreas: Record<string, CommandAreaInfo> = {};
   for (const group of Object.values(commandAreaRegister)) {

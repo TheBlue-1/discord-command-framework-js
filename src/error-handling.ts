@@ -114,7 +114,9 @@ export function errorHandler(error: unknown, args?: unknown[]) {
   if (error?.errorType === "BOT_ERROR") {
     const botError: BotError = error;
 
-    interaction.reply(`${botError}`);
+    interaction.reply(`${botError}`).catch(() => {
+      console.warn("couldn't reply after error");
+    });
 
     if (botError.log !== false) {
       console.warn(
@@ -129,7 +131,9 @@ export function errorHandler(error: unknown, args?: unknown[]) {
         "stack" in error ? `\n${error.stack}` : ""
       }`,
     );
-    interaction.reply("an unexpected error ocurred");
+    interaction.reply("an unexpected error ocurred").catch(() => {
+      console.warn("couldn't reply after error");
+    });
   }
 }
 
@@ -273,6 +277,6 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
 export function handleObservableErrors<T>(
   observable: Observable<T>,
-): Observable<T> {
+): ErrorHandlingObservable<T> {
   return ErrorHandlingObservable.fromObservable(observable);
 }

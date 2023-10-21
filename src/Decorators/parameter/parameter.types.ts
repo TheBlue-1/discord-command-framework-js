@@ -7,7 +7,7 @@ import type {
 } from "../../slash-command-generator";
 
 export class InteractionParameter {
-  public methodParameterType: "parameter" = "parameter";
+  public methodParameterType = "parameter" as const;
 
   public constructor(
     public name: string,
@@ -27,7 +27,7 @@ export class InteractionParameter {
   }
 }
 export class InteractionAttribute {
-  public methodParameterType: "attribute" = "attribute";
+  public methodParameterType = "attribute" as const;
 
   public constructor(public name: AttributeName) {}
 }

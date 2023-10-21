@@ -30,170 +30,6 @@ import type {
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
 
-export class SlashCommandGenerator {
-  public generate(groups: CommandGroupRegister): SlashCommand[] {
-    const slashCommands: SlashCommand[] = [];
-    for (const group of Object.values(groups)) {
-      for (const command of Object.values(group.commands)) {
-        const parameterOptions = this.getCommandParameterOptions(
-          command.parameters,
-        );
-        slashCommands.push(
-          new SlashCommand(command.name, command.description, parameterOptions),
-        );
-      }
-      for (const commandArea of Object.values(group.commandAreas)) {
-        const subCommandOptions: SubCommandOptions[] = [];
-
-        for (const subCommand of Object.values(commandArea.subCommands)) {
-          const parameterOptions = this.getCommandParameterOptions(
-            subCommand.parameters,
-          );
-
-          subCommandOptions.push(
-            new SubCommandOption(
-              subCommand.name,
-              subCommand.description,
-              parameterOptions,
-            ),
-          );
-        }
-
-        for (const subCommandGroup of Object.values(
-          commandArea.subCommandGroups,
-        )) {
-          const innerSubCommandOptions: SubCommandOption[] = [];
-          for (const subCommand of Object.values(subCommandGroup.subCommands)) {
-            const parameterOptions = this.getCommandParameterOptions(
-              subCommand.parameters,
-            );
-
-            innerSubCommandOptions.push(
-              new SubCommandOption(
-                subCommand.name,
-                subCommand.description,
-                parameterOptions,
-              ),
-            );
-          }
-          subCommandOptions.push(
-            new SubCommandGroupOption(
-              subCommandGroup.name,
-              subCommandGroup.description,
-              innerSubCommandOptions,
-            ),
-          );
-        }
-        slashCommands.push(
-          new SlashCommand(
-            commandArea.name,
-            commandArea.description,
-            subCommandOptions,
-          ),
-        );
-      }
-    }
-    return slashCommands;
-  }
-
-  protected getCommandParameterOptions(
-    parameters: (InteractionAttribute | InteractionParameter)[],
-  ): CommandParameterOption[] {
-    const parameterOptions: CommandParameterOption[] = [];
-    for (const parameter of parameters) {
-      if (parameter.methodParameterType === "attribute") {
-        continue;
-      }
-
-      let options: CommandParameterOption;
-      parameter.type = this.toEnumType(parameter.type);
-      switch (parameter.type) {
-        case ApplicationCommandOptionTypes.BOOLEAN:
-        case ApplicationCommandOptionTypes.USER:
-        case ApplicationCommandOptionTypes.ROLE:
-        case ApplicationCommandOptionTypes.MENTIONABLE:
-          options = new CommandNoOptionsOption(
-            parameter.type,
-            parameter.name,
-            parameter.description,
-            !(parameter.options.optional ?? false),
-          );
-          break;
-        case ApplicationCommandOptionTypes.CHANNEL:
-          options = new CommandChannelOption(
-            parameter.type,
-            parameter.name,
-            parameter.description,
-            !(parameter.options.optional ?? false),
-            parameter.options.channelTypes,
-          );
-          break;
-        case ApplicationCommandOptionTypes.INTEGER:
-        case ApplicationCommandOptionTypes.NUMBER:
-          if (
-            parameter.options.minValue !== undefined ||
-            parameter.options.maxValue !== undefined
-          ) {
-            options = new CommandMinMaxOption(
-              parameter.type,
-              parameter.name,
-              parameter.description,
-              !(parameter.options.optional ?? false),
-              parameter.options.minValue,
-              parameter.options.maxValue,
-            );
-            break;
-          }
-        // falls through
-        case ApplicationCommandOptionTypes.STRING:
-          if (parameter.options.choices !== undefined) {
-            options = new CommandChoiceOption(
-              parameter.type,
-              parameter.name,
-              parameter.description,
-              parameter.options.choices,
-              !(parameter.options.optional ?? false),
-            );
-            break;
-          }
-          options = new CommandAutocompleteOption(
-            parameter.type,
-            parameter.name,
-            parameter.description,
-            !(parameter.options.optional ?? false),
-          );
-          break;
-      }
-
-      parameterOptions.push(options);
-    }
-    return parameterOptions;
-  }
-
-  protected toEnumType(
-    type: CommandOptionParameterType,
-  ): ApplicationCommandOptionTypes & CommandOptionParameterType {
-    switch (type) {
-      case "BOOLEAN":
-        return ApplicationCommandOptionTypes.BOOLEAN;
-      case "USER":
-        return ApplicationCommandOptionTypes.USER;
-      case "ROLE":
-        return ApplicationCommandOptionTypes.ROLE;
-      case "MENTIONABLE":
-        return ApplicationCommandOptionTypes.MENTIONABLE;
-      case "CHANNEL":
-        return ApplicationCommandOptionTypes.CHANNEL;
-      case "INTEGER":
-        return ApplicationCommandOptionTypes.INTEGER;
-      case "NUMBER":
-        return ApplicationCommandOptionTypes.NUMBER;
-      case "STRING":
-        return ApplicationCommandOptionTypes.STRING;
-    }
-  }
-}
-
 export class SlashCommand implements ChatInputApplicationCommandData {
   public type: ApplicationCommandTypes.CHAT_INPUT | "CHAT_INPUT" =
     ApplicationCommandTypes.CHAT_INPUT;
@@ -410,4 +246,168 @@ export type CommandOptionParameterType = Exclude<
 >;
 export interface DeepEqualsOption {
   deepEquals(other: ApplicationCommandOption): boolean;
+}
+
+export class SlashCommandGenerator {
+  public generate(groups: CommandGroupRegister): SlashCommand[] {
+    const slashCommands: SlashCommand[] = [];
+    for (const group of Object.values(groups)) {
+      for (const command of Object.values(group.commands)) {
+        const parameterOptions = this.getCommandParameterOptions(
+          command.parameters,
+        );
+        slashCommands.push(
+          new SlashCommand(command.name, command.description, parameterOptions),
+        );
+      }
+      for (const commandArea of Object.values(group.commandAreas)) {
+        const subCommandOptions: SubCommandOptions[] = [];
+
+        for (const subCommand of Object.values(commandArea.subCommands)) {
+          const parameterOptions = this.getCommandParameterOptions(
+            subCommand.parameters,
+          );
+
+          subCommandOptions.push(
+            new SubCommandOption(
+              subCommand.name,
+              subCommand.description,
+              parameterOptions,
+            ),
+          );
+        }
+
+        for (const subCommandGroup of Object.values(
+          commandArea.subCommandGroups,
+        )) {
+          const innerSubCommandOptions: SubCommandOption[] = [];
+          for (const subCommand of Object.values(subCommandGroup.subCommands)) {
+            const parameterOptions = this.getCommandParameterOptions(
+              subCommand.parameters,
+            );
+
+            innerSubCommandOptions.push(
+              new SubCommandOption(
+                subCommand.name,
+                subCommand.description,
+                parameterOptions,
+              ),
+            );
+          }
+          subCommandOptions.push(
+            new SubCommandGroupOption(
+              subCommandGroup.name,
+              subCommandGroup.description,
+              innerSubCommandOptions,
+            ),
+          );
+        }
+        slashCommands.push(
+          new SlashCommand(
+            commandArea.name,
+            commandArea.description,
+            subCommandOptions,
+          ),
+        );
+      }
+    }
+    return slashCommands;
+  }
+
+  protected getCommandParameterOptions(
+    parameters: (InteractionAttribute | InteractionParameter)[],
+  ): CommandParameterOption[] {
+    const parameterOptions: CommandParameterOption[] = [];
+    for (const parameter of parameters) {
+      if (parameter.methodParameterType === "attribute") {
+        continue;
+      }
+
+      let options: CommandParameterOption;
+      parameter.type = this.toEnumType(parameter.type);
+      switch (parameter.type) {
+        case ApplicationCommandOptionTypes.BOOLEAN:
+        case ApplicationCommandOptionTypes.USER:
+        case ApplicationCommandOptionTypes.ROLE:
+        case ApplicationCommandOptionTypes.MENTIONABLE:
+          options = new CommandNoOptionsOption(
+            parameter.type,
+            parameter.name,
+            parameter.description,
+            !(parameter.options.optional ?? false),
+          );
+          break;
+        case ApplicationCommandOptionTypes.CHANNEL:
+          options = new CommandChannelOption(
+            parameter.type,
+            parameter.name,
+            parameter.description,
+            !(parameter.options.optional ?? false),
+            parameter.options.channelTypes,
+          );
+          break;
+        case ApplicationCommandOptionTypes.INTEGER:
+        case ApplicationCommandOptionTypes.NUMBER:
+          if (
+            parameter.options.minValue !== undefined ||
+            parameter.options.maxValue !== undefined
+          ) {
+            options = new CommandMinMaxOption(
+              parameter.type,
+              parameter.name,
+              parameter.description,
+              !(parameter.options.optional ?? false),
+              parameter.options.minValue,
+              parameter.options.maxValue,
+            );
+            break;
+          }
+        // falls through
+        case ApplicationCommandOptionTypes.STRING:
+          if (parameter.options.choices !== undefined) {
+            options = new CommandChoiceOption(
+              parameter.type,
+              parameter.name,
+              parameter.description,
+              parameter.options.choices,
+              !(parameter.options.optional ?? false),
+            );
+            break;
+          }
+          options = new CommandAutocompleteOption(
+            parameter.type,
+            parameter.name,
+            parameter.description,
+            !(parameter.options.optional ?? false),
+          );
+          break;
+      }
+
+      parameterOptions.push(options);
+    }
+    return parameterOptions;
+  }
+
+  protected static toEnumType(
+    type: CommandOptionParameterType,
+  ): ApplicationCommandOptionTypes & CommandOptionParameterType {
+    switch (type) {
+      case "BOOLEAN":
+        return ApplicationCommandOptionTypes.BOOLEAN;
+      case "USER":
+        return ApplicationCommandOptionTypes.USER;
+      case "ROLE":
+        return ApplicationCommandOptionTypes.ROLE;
+      case "MENTIONABLE":
+        return ApplicationCommandOptionTypes.MENTIONABLE;
+      case "CHANNEL":
+        return ApplicationCommandOptionTypes.CHANNEL;
+      case "INTEGER":
+        return ApplicationCommandOptionTypes.INTEGER;
+      case "NUMBER":
+        return ApplicationCommandOptionTypes.NUMBER;
+      case "STRING":
+        return ApplicationCommandOptionTypes.STRING;
+    }
+  }
 }

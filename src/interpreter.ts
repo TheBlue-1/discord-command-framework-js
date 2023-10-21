@@ -1,19 +1,19 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
-import type { Observable } from "rxjs";
 import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
   CommandAreaInfo,
   CommandInfo,
   SubCommandInfo,
 } from "./Decorators/command/command.types";
+import type { ErrorHandlingObservable } from "./error-handling";
 
 export class Interpreter {
   protected commandAreas: Record<string, CommandAreaInfo> = {};
   protected commands: Record<string, CommandInfo> = {};
 
   public constructor(
-    private readonly commandInteraction$: Observable<CommandInteraction>,
+    commandInteraction$: ErrorHandlingObservable<CommandInteraction>,
     commandGroups: CommandGroupRegister,
   ) {
     commandInteraction$.subscribe(async (interaction) => {
@@ -60,7 +60,7 @@ export class Interpreter {
     ].subCommands[interaction.options.getSubcommand()];
   }
 
-  protected prepareParameters(
+  protected static prepareParameters(
     command: CommandInfo | SubCommandInfo,
     interaction: CommandInteraction,
   ): unknown[] {
