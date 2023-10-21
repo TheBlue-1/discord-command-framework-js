@@ -1,3 +1,5 @@
+import type { CustomUnknown } from "../types";
+
 function isConstructor(f: unknown): f is new () => unknown {
   if (typeof f !== "function") return false;
   try {
@@ -25,7 +27,7 @@ function hasConstructor(
 function hasFunction<T extends string>(
   obj: object,
   property: T,
-): obj is Record<T, () => Promise<void> | void> {
+): obj is Record<T, () => CustomUnknown | Promise<CustomUnknown>> {
   return (
     property in obj && typeof obj[property as keyof typeof obj] === "function"
   );
@@ -33,7 +35,7 @@ function hasFunction<T extends string>(
 
 export function methodDecorator(
   fn: <T extends "constructor" extends T ? never : string>(
-    target: Record<T, () => Promise<void> | void> & {
+    target: Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
       constructor: new () => unknown;
     },
     propertyKey: T,
@@ -68,7 +70,7 @@ export function classDecorator(fn: (target: new () => unknown) => void) {
 
 export function paramDecorator(
   fn: <T extends "constructor" extends T ? never : string>(
-    target: Record<T, () => Promise<void> | void> & {
+    target: Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
       constructor: new () => unknown;
     },
     propertyKey: T,
