@@ -1,4 +1,4 @@
-import {
+import type {
   ApplicationCommand,
   ApplicationCommandAutocompleteOption,
   ApplicationCommandChannelOptionData,
@@ -22,12 +22,12 @@ import {
 import {
   ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
-  ChannelTypes,
+  type ChannelTypes,
 } from "discord.js/typings/enums";
-import { CommandGroupRegister } from "./Decorators/command/command.helpers";
-import {
-  InteractionParameter,
+import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+import type {
   InteractionAttribute,
+  InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
 
 export class SlashCommandGenerator {
@@ -36,10 +36,10 @@ export class SlashCommandGenerator {
     for (const group of Object.values(groups)) {
       for (const command of Object.values(group.commands)) {
         const parameterOptions = this.getCommandParameterOptions(
-          command.parameters
+          command.parameters,
         );
         slashCommands.push(
-          new SlashCommand(command.name, command.description, parameterOptions)
+          new SlashCommand(command.name, command.description, parameterOptions),
         );
       }
       for (const commandArea of Object.values(group.commandAreas)) {
@@ -47,49 +47,49 @@ export class SlashCommandGenerator {
 
         for (const subCommand of Object.values(commandArea.subCommands)) {
           const parameterOptions = this.getCommandParameterOptions(
-            subCommand.parameters
+            subCommand.parameters,
           );
 
           subCommandOptions.push(
             new SubCommandOption(
               subCommand.name,
               subCommand.description,
-              parameterOptions
-            )
+              parameterOptions,
+            ),
           );
         }
 
         for (const subCommandGroup of Object.values(
-          commandArea.subCommandGroups
+          commandArea.subCommandGroups,
         )) {
           const innerSubCommandOptions: SubCommandOption[] = [];
           for (const subCommand of Object.values(subCommandGroup.subCommands)) {
             const parameterOptions = this.getCommandParameterOptions(
-              subCommand.parameters
+              subCommand.parameters,
             );
 
             innerSubCommandOptions.push(
               new SubCommandOption(
                 subCommand.name,
                 subCommand.description,
-                parameterOptions
-              )
+                parameterOptions,
+              ),
             );
           }
           subCommandOptions.push(
             new SubCommandGroupOption(
               subCommandGroup.name,
               subCommandGroup.description,
-              innerSubCommandOptions
-            )
+              innerSubCommandOptions,
+            ),
           );
         }
         slashCommands.push(
           new SlashCommand(
             commandArea.name,
             commandArea.description,
-            subCommandOptions
-          )
+            subCommandOptions,
+          ),
         );
       }
     }
@@ -97,7 +97,7 @@ export class SlashCommandGenerator {
   }
 
   protected getCommandParameterOptions(
-    parameters: (InteractionParameter | InteractionAttribute)[]
+    parameters: (InteractionAttribute | InteractionParameter)[],
   ): CommandParameterOption[] {
     const parameterOptions: CommandParameterOption[] = [];
     for (const parameter of parameters) {
@@ -116,7 +116,7 @@ export class SlashCommandGenerator {
             parameter.type,
             parameter.name,
             parameter.description,
-            !parameter.options.optional
+            !parameter.options.optional,
           );
           break;
         case ApplicationCommandOptionTypes.CHANNEL:
@@ -125,7 +125,7 @@ export class SlashCommandGenerator {
             parameter.name,
             parameter.description,
             !parameter.options.optional,
-            parameter.options.channelTypes
+            parameter.options.channelTypes,
           );
           break;
         case ApplicationCommandOptionTypes.INTEGER:
@@ -140,7 +140,7 @@ export class SlashCommandGenerator {
               parameter.description,
               !parameter.options.optional,
               parameter.options.minValue,
-              parameter.options.maxValue
+              parameter.options.maxValue,
             );
             break;
           }
@@ -152,7 +152,7 @@ export class SlashCommandGenerator {
               parameter.name,
               parameter.description,
               parameter.options.choices,
-              !parameter.options.optional
+              !parameter.options.optional,
             );
             break;
           }
@@ -160,7 +160,7 @@ export class SlashCommandGenerator {
             parameter.type,
             parameter.name,
             parameter.description,
-            !parameter.options.optional
+            !parameter.options.optional,
           );
           break;
       }
@@ -171,7 +171,7 @@ export class SlashCommandGenerator {
   }
 
   protected toEnumType(
-    type: CommandOptionParameterType
+    type: CommandOptionParameterType,
   ): ApplicationCommandOptionTypes & CommandOptionParameterType {
     switch (type) {
       case "BOOLEAN":
@@ -195,13 +195,13 @@ export class SlashCommandGenerator {
 }
 
 export class SlashCommand implements ChatInputApplicationCommandData {
-  public type: "CHAT_INPUT" | ApplicationCommandTypes.CHAT_INPUT =
+  public type: ApplicationCommandTypes.CHAT_INPUT | "CHAT_INPUT" =
     ApplicationCommandTypes.CHAT_INPUT;
 
   constructor(
     public name: string,
     public description: string,
-    public options: CommandParameterOption[] | SubCommandOptions[]
+    public options: CommandParameterOption[] | SubCommandOptions[],
   ) {}
 
   public deepEquals(other: ApplicationCommand): boolean {
@@ -220,14 +220,13 @@ export class SubCommandGroupOption
   implements ApplicationCommandSubGroupData, DeepEqualsOption
 {
   public type:
-    | "SUB_COMMAND_GROUP"
-    | ApplicationCommandOptionTypes.SUB_COMMAND_GROUP =
-    ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
+    | ApplicationCommandOptionTypes.SUB_COMMAND_GROUP
+    | "SUB_COMMAND_GROUP" = ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
 
   constructor(
     public name: string,
     public description: string,
-    public options: SubCommandOption[]
+    public options: SubCommandOption[],
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -244,13 +243,13 @@ export class SubCommandGroupOption
 export class SubCommandOption
   implements ApplicationCommandSubCommandData, DeepEqualsOption
 {
-  public type: "SUB_COMMAND" | ApplicationCommandOptionTypes.SUB_COMMAND =
+  public type: ApplicationCommandOptionTypes.SUB_COMMAND | "SUB_COMMAND" =
     ApplicationCommandOptionTypes.SUB_COMMAND;
 
   constructor(
     public name: string,
     public description: string,
-    public options: CommandParameterOption[]
+    public options: CommandParameterOption[],
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -266,14 +265,14 @@ export class SubCommandOption
 }
 
 export type CommandParameterOption =
-  | CommandSimpleOption
-  | CommandChoiceOption
   | CommandChannelOption
-  | CommandMinMaxOption;
-export type SubCommandOptions = SubCommandOption | SubCommandGroupOption;
+  | CommandChoiceOption
+  | CommandMinMaxOption
+  | CommandSimpleOption;
+export type SubCommandOptions = SubCommandGroupOption | SubCommandOption;
 export type CommandSimpleOption =
-  | CommandNoOptionsOption
-  | CommandAutocompleteOption;
+  | CommandAutocompleteOption
+  | CommandNoOptionsOption;
 
 export class CommandNoOptionsOption
   implements ApplicationCommandNonOptionsData, DeepEqualsOption
@@ -282,7 +281,7 @@ export class CommandNoOptionsOption
     public type: CommandOptionNonChoiceResolvableType,
     public name: string,
     public description: string,
-    public required: boolean
+    public required: boolean,
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -301,17 +300,17 @@ export class CommandAutocompleteOption
 
   constructor(
     public type:
-      | "STRING"
-      | "NUMBER"
-      | "INTEGER"
-      | ApplicationCommandOptionTypes.STRING
+      | ApplicationCommandOptionTypes.INTEGER
       | ApplicationCommandOptionTypes.NUMBER
-      | ApplicationCommandOptionTypes.INTEGER,
+      | ApplicationCommandOptionTypes.STRING
+      | "INTEGER"
+      | "NUMBER"
+      | "STRING",
     public name: string,
     public description: string,
-    public required: boolean
+    public required: boolean,
   ) {
-    this.autocomplete = <true>false; //TODO think of something
+    this.autocomplete = false as true; // TODO think of something
   }
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -319,7 +318,7 @@ export class CommandAutocompleteOption
     if (other.type != this.type) return false;
     if (other.description != this.description) return false;
     if (other.required != this.required) return false;
-    if (<boolean>other.autocomplete != this.autocomplete) return false;
+    if ((other.autocomplete as boolean) != this.autocomplete) return false;
 
     return true;
   }
@@ -332,7 +331,7 @@ export class CommandChannelOption
     public name: string,
     public description: string,
     public required: boolean,
-    public channelTypes: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[]
+    public channelTypes: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -353,8 +352,8 @@ export class CommandChoiceOption
     public type: CommandOptionChoiceResolvableType,
     public name: string,
     public description: string,
-    public choices: CommandChoice<string | number>[],
-    public required: boolean
+    public choices: CommandChoice<number | string>[],
+    public required: boolean,
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -379,7 +378,7 @@ export class CommandMinMaxOption
     public description: string,
     public required: boolean,
     public minValue: number,
-    public maxValue: number
+    public maxValue: number,
   ) {}
 
   public deepEquals(other: ApplicationCommandOption): boolean {
@@ -387,23 +386,28 @@ export class CommandMinMaxOption
     if (other.type != this.type) return false;
     if (other.description != this.description) return false;
     if (other.required != this.required) return false;
-    if ((<ApplicationCommandNumericOption>other).minValue != this.minValue)
+    if ((other as ApplicationCommandNumericOption).minValue != this.minValue) {
       return false;
-    if ((<ApplicationCommandNumericOption>other).maxValue != this.maxValue)
+    }
+    if ((other as ApplicationCommandNumericOption).maxValue != this.maxValue) {
       return false;
+    }
 
     return true;
   }
 }
-export class CommandChoice<T extends string | number>
+export class CommandChoice<T extends number | string>
   implements ApplicationCommandOptionChoice
 {
-  constructor(public name: string, public value: T) {}
+  constructor(
+    public name: string,
+    public value: T,
+  ) {}
 }
 export type CommandOptionParameterType = Exclude<
   CommandOptionDataTypeResolvable,
   CommandOptionSubOptionResolvableType
 >;
-export type DeepEqualsOption = {
-  deepEquals: (other: ApplicationCommandOption) => boolean;
-};
+export interface DeepEqualsOption {
+  deepEquals(other: ApplicationCommandOption): boolean;
+}

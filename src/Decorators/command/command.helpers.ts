@@ -1,4 +1,4 @@
-import {
+import type {
   CommandAreaInfo,
   CommandGroupInfo,
   CommandInfo,
@@ -40,34 +40,33 @@ export function commandGroupRegister() {
   }
   return commandGroupRegister;
 }
-export type CommandGroupRegister = { [className: string]: CommandGroupInfo };
+export type CommandGroupRegister = Record<string, CommandGroupInfo>;
 export const rawCommandGroupRegister: CommandGroupRegister = {};
-export const commandRegister: {
-  [commandGroupClassName: string]: { [methodName: string]: CommandInfo };
-} = {};
-export const commandAreaRegister: {
-  [commandGroupClassName: string]: { [className: string]: CommandAreaInfo };
-} = {};
-export function flatCommandAreaRegister(): {
-  [className: string]: CommandAreaInfo;
-} {
-  const commandAreas: { [className: string]: CommandAreaInfo } = {};
+export const commandRegister: Record<string, Record<string, CommandInfo>> = {};
+export const commandAreaRegister: Record<
+  string,
+  Record<string, CommandAreaInfo>
+> = {};
+export function flatCommandAreaRegister(): Record<string, CommandAreaInfo> {
+  const commandAreas: Record<string, CommandAreaInfo> = {};
   for (const group of Object.values(commandAreaRegister)) {
     Object.assign(commandAreas, group);
   }
   return commandAreas;
 }
-export const subCommandRegister: {
-  [parentClassName: string]: { [methodName: string]: SubCommandInfo };
-} = {};
-export const subCommandGroupRegister: {
-  [commandAreaClassName: string]: { [className: string]: SubCommandGroupInfo };
-} = {};
-export const targetInstanceMap: { [targetName: string]: any } = {};
+export const subCommandRegister: Record<
+  string,
+  Record<string, SubCommandInfo>
+> = {};
+export const subCommandGroupRegister: Record<
+  string,
+  Record<string, SubCommandGroupInfo>
+> = {};
+export const targetInstanceMap: Record<string, any> = {};
 
 export function setParentForChildren(
   parent: Configurable,
-  children: { [name: string]: Configurable }
+  children: Record<string, Configurable>,
 ) {
   for (const child of Object.values(children)) {
     child.setParent(parent);

@@ -1,20 +1,20 @@
-import { CommandInteraction } from "discord.js";
+import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
-import { Observable } from "rxjs";
-import { CommandGroupRegister } from "./Decorators/command/command.helpers";
-import {
+import type { Observable } from "rxjs";
+import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+import type {
   CommandAreaInfo,
   CommandInfo,
   SubCommandInfo,
 } from "./Decorators/command/command.types";
 
 export class Interpreter {
-  protected commandAreas: { [name: string]: CommandAreaInfo } = {};
-  protected commands: { [name: string]: CommandInfo } = {};
+  protected commandAreas: Record<string, CommandAreaInfo> = {};
+  protected commands: Record<string, CommandInfo> = {};
 
   constructor(
-    private commandInteraction$: Observable<CommandInteraction>,
-    commandGroups: CommandGroupRegister
+    private readonly commandInteraction$: Observable<CommandInteraction>,
+    commandGroups: CommandGroupRegister,
   ) {
     commandInteraction$.subscribe(async (interaction) => {
       await this.callCommand(interaction);
@@ -33,22 +33,19 @@ export class Interpreter {
     }
     const options = command.getOptions();
 
-    //TODO
+    // TODO
 
     const parameters = this.prepareParameters(command, interaction);
 
     await interaction.reply("command is being executed...");
-    //TODO multiple replies
+    // TODO multiple replies
     await interaction.editReply(
-      "" +
-        (await command.callable.bind(command.parentInstance, ...parameters)())
+      `${await command.callable.bind(command.parentInstance, ...parameters)()}`,
     );
-
-    return;
   }
 
   protected findCommand(
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ): CommandInfo | SubCommandInfo {
     if (!interaction.options.getSubcommand(false)) {
       return this.commands[interaction.commandName];
@@ -65,7 +62,7 @@ export class Interpreter {
 
   protected prepareParameters(
     command: CommandInfo | SubCommandInfo,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ): any[] {
     const params: any[] = [];
     for (const parameter of command.parameters) {
@@ -79,71 +76,72 @@ export class Interpreter {
           params.push(
             interaction.options.getBoolean(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.USER:
           params.push(
             interaction.options.getUser(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.ROLE:
           params.push(
             interaction.options.getRole(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.MENTIONABLE:
           params.push(
             interaction.options.getMentionable(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.CHANNEL:
           params.push(
             interaction.options.getChannel(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.INTEGER:
           params.push(
             interaction.options.getInteger(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.NUMBER:
           params.push(
             interaction.options.getNumber(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.STRING:
           params.push(
             interaction.options.getString(
               parameter.name,
-              !parameter.options.optional
-            )
+              !parameter.options.optional,
+            ),
           );
       }
       if (
         params[params.length - 1] == undefined &&
         parameter.options.defaultValue != undefined
-      )
+      ) {
         params[params.length - 1] = parameter.options.defaultValue;
+      }
     }
 
     return params;

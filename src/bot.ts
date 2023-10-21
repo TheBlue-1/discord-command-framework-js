@@ -1,20 +1,23 @@
 import {
-  AutocompleteInteraction,
   Client,
-  ClientEvents,
-  ClientOptions,
-  CommandInteraction,
-  Interaction,
+  type AutocompleteInteraction,
+  type ClientEvents,
+  type ClientOptions,
+  type CommandInteraction,
+  type Interaction,
 } from "discord.js";
-import { map, Observable, takeWhile } from "rxjs";
+import { Observable, map, takeWhile } from "rxjs";
 import {
-  CommandGroupRegister,
   commandGroupRegister,
+  type CommandGroupRegister,
 } from "./Decorators/command/command.helpers";
 
 import { handleObservableErrors } from "./error-handling";
 import { Interpreter } from "./interpreter";
-import { SlashCommand, SlashCommandGenerator } from "./slash-command-generator";
+import {
+  SlashCommandGenerator,
+  type SlashCommand,
+} from "./slash-command-generator";
 
 export class Bot {
   protected autocompleteParameter$: Observable<AutocompleteInteraction>;
@@ -25,29 +28,33 @@ export class Bot {
 
   public client: Client;
 
-  constructor(private token: string, options: ClientOptions = { intents: [] }) {
+  constructor(
+    private readonly token: string,
+    options: ClientOptions = { intents: [] },
+  ) {
     this.client = new Client(options);
     this.commandGroups = commandGroupRegister();
   }
 
   public listenTo<T extends keyof ClientEvents>(
-    event: T
+    event: T,
   ): Observable<
     ClientEvents[T] extends { 1: unknown }
       ? ClientEvents[T]
       : ClientEvents[T][0]
   >;
   public listenTo<T extends keyof ClientEvents>(
-    event: T
+    event: T,
   ): Observable<ClientEvents[T] | ClientEvents[T][0]> {
-    const observable: Observable<ClientEvents[T] | ClientEvents[T][0]> =
-      new Observable((subscriber) => {
+    const observable = new Observable<ClientEvents[T] | ClientEvents[T][0]>(
+      (subscriber) => {
         this.client.on(event, (...params: ClientEvents[T]) => {
           if (params.length == 1) {
             subscriber.next(params[0]);
           } else subscriber.next(params);
         });
-      });
+      },
+    );
     return handleObservableErrors(observable);
   }
 
@@ -60,16 +67,16 @@ export class Bot {
     this.createdInteraction$ = this.listenTo("interactionCreate");
     this.commandInteraction$ = this.createdInteraction$.pipe(
       takeWhile((i) => i.isCommand()),
-      map((i) => i as CommandInteraction)
+      map((i) => i as CommandInteraction),
     );
     this.interpreter = new Interpreter(
       this.commandInteraction$,
-      this.commandGroups
+      this.commandGroups,
     );
 
     this.autocompleteParameter$ = this.createdInteraction$.pipe(
       takeWhile((i) => i.isAutocomplete()),
-      map((i) => i as AutocompleteInteraction)
+      map((i) => i as AutocompleteInteraction),
     );
     this.autocompleteParameter$.subscribe((s) => {
       s.respond([{ name: "a", value: "a" }]);
@@ -82,7 +89,7 @@ export class Bot {
 
   private async registerCommands(commands: SlashCommand[]) {
     const oldCommands = (await this.client.application.commands.fetch()).map(
-      (c) => c
+      (c) => c,
     );
 
     for (const command of commands) {

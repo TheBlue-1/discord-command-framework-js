@@ -1,85 +1,85 @@
-import {
+import type {
   CommandOptionChoiceResolvableType,
   CommandOptionNumericResolvableType,
   ExcludeEnum,
 } from "discord.js";
-import { ChannelTypes } from "discord.js/typings/enums";
-import {
+import type { ChannelTypes } from "discord.js/typings/enums";
+import type {
   CommandChoice,
   CommandOptionParameterType,
 } from "../../slash-command-generator";
 import { setParam } from "./parameter.helpers";
 import {
-  AttributeName,
   InteractionAttribute,
   InteractionParameter,
+  type AttributeName,
 } from "./parameter.types";
 
 export function Param(
   name: string,
   description = "",
   type: CommandOptionParameterType = "STRING",
-  defaultValue?: any
+  defaultValue?: any,
 ) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionParameter(name, description, type, {
-        defaultValue: defaultValue,
-      })
+        defaultValue,
+      }),
     );
   };
 }
 export function Autocomplete(
   name: string,
   description = "",
-  autocompletions: (string | number)[],
+  autocompletions: (number | string)[],
   type: CommandOptionChoiceResolvableType = "STRING",
-  defaultValue?: any
+  defaultValue?: any,
 ) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionParameter(name, description, type, {
-        defaultValue: defaultValue,
-        autocompletions: autocompletions,
-      })
+        defaultValue,
+        autocompletions,
+      }),
     );
   };
 }
 
-export function Choice<T extends string | number>(
+export function Choice<T extends number | string>(
   name: string,
   description: string,
   choices: CommandChoice<T>[],
   type: T extends number ? "INTEGER" | "NUMBER" : "STRING",
-  defaultValue?: any
+  defaultValue?: any,
 ) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionParameter(name, description, type, {
-        defaultValue: defaultValue,
-        choices: choices,
-      })
+        defaultValue,
+        choices,
+      }),
     );
   };
 }
@@ -89,22 +89,22 @@ export function Minmax(
   min?: number,
   max?: number,
   type: CommandOptionNumericResolvableType = "NUMBER",
-  defaultValue?: any
+  defaultValue?: any,
 ) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionParameter(name, description, type, {
-        defaultValue: defaultValue,
+        defaultValue,
         minValue: min,
         maxValue: max,
-      })
+      }),
     );
   };
 }
@@ -112,21 +112,21 @@ export function ChannelParam(
   name: string,
   description = "",
   channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
-  defaultValue?: any
+  defaultValue?: any,
 ) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
       new InteractionParameter(name, description, "CHANNEL", {
-        defaultValue: defaultValue,
-        channelTypes: channelTypes,
-      })
+        defaultValue,
+        channelTypes,
+      }),
     );
   };
 }
@@ -142,13 +142,13 @@ export function Attribute(name: AttributeName) {
   return function (
     target: { constructor: new () => any },
     propertyKey: string,
-    index: number
+    index: number,
   ): void {
     setParam(
       target.constructor.name,
       propertyKey,
       index,
-      new InteractionAttribute(name)
+      new InteractionAttribute(name),
     );
   };
 }

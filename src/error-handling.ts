@@ -1,10 +1,10 @@
-import { CommandInteraction } from "discord.js";
+import type { CommandInteraction } from "discord.js";
 import {
   Observable,
-  Observer,
-  OperatorFunction,
-  Subscription,
-  UnaryFunction,
+  type Observer,
+  type OperatorFunction,
+  type Subscription,
+  type UnaryFunction,
 } from "rxjs";
 import { SafeSubscriber, Subscriber } from "rxjs/internal/Subscriber";
 import { isSubscription } from "rxjs/internal/Subscription";
@@ -15,14 +15,14 @@ type GlobalErrorHandler = (
   exitCode?: number,
   signal?: string,
   exception?: Error,
-  kill?: boolean
+  kill?: boolean,
 ) => boolean;
 
 function globalHandler(
   exitCode?: number,
   signal?: string,
   exception?: Error,
-  kill = true
+  kill = true,
 ) {
   if (currentGlobalErrorHandler(exitCode, signal, exception, kill)) {
     removeGlobalErrorHandlers();
@@ -34,7 +34,7 @@ export const globalDefaultHandler: GlobalErrorHandler = (
   exitCode?: number,
   signal?: string,
   exception?: Error,
-  kill?: boolean
+  kill?: boolean,
 ) => {
   console.log(
     `Program is about to ${!kill ? "(NOT) " : ""}exit${
@@ -43,14 +43,14 @@ export const globalDefaultHandler: GlobalErrorHandler = (
       exception == undefined
         ? ""
         : ` with exception "${exception}" ${exception.stack}`
-    }`
+    }`,
   );
   return kill;
 };
 let currentGlobalErrorHandler: GlobalErrorHandler = globalDefaultHandler;
 
 export function initGlobalErrorHandlers(
-  errorHandler: GlobalErrorHandler = globalDefaultHandler
+  errorHandler: GlobalErrorHandler = globalDefaultHandler,
 ): void {
   currentGlobalErrorHandler = errorHandler;
   process.on("SIGINT", globalHandlers.SIGINT);
@@ -91,9 +91,9 @@ export class BotError extends Error {
   public readonly errorType = "BOT_ERROR";
 
   constructor(
-    private userMessage?: string,
+    private readonly userMessage?: string,
     message: string = userMessage,
-    public log: boolean | "WITH_STACK" = false
+    public log: boolean | "WITH_STACK" = false,
   ) {
     super(message);
   }
@@ -105,32 +105,33 @@ export class BotError extends Error {
 export function errorHandler(error: any, args?: any[]) {
   let interaction: CommandInteraction;
   const arg0 = args?.[0];
-  if (arg0 && arg0.isCommand && arg0.isCommand()) {
+  if (arg0?.isCommand?.()) {
     interaction = arg0;
   }
 
   if (error?.errorType == "BOT_ERROR") {
     const botError: BotError = error;
 
-    interaction?.reply("" + botError);
+    interaction.reply(`${botError}`);
 
-    if (botError.log)
+    if (botError.log) {
       console.warn(
         `An error occurred in a request: ${botError.message} (${botError})${
-          botError.log == "WITH_STACK" ? "\n" + botError.stack : ""
-        }`
+          botError.log == "WITH_STACK" ? `\n${botError.stack}` : ""
+        }`,
       );
+    }
   } else {
     console.error(
       `An unknown error occurred in a request: ${error}${
-        error?.stack ? "\n" + error.stack : ""
-      }`
+        error?.stack ? `\n${error.stack}` : ""
+      }`,
     );
-    interaction?.reply("an unexpected error ocurred");
+    interaction.reply("an unexpected error ocurred");
   }
 }
 export function handleObservableErrors<T>(
-  observable: Observable<T>
+  observable: Observable<T>,
 ): Observable<T> {
   return ErrorHandlingObservable.fromObservable(observable);
 }
@@ -139,7 +140,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   constructor(
     observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
     error?: ((e?: any) => void) | null,
-    complete?: (() => void) | null
+    complete?: (() => void) | null,
   ) {
     super();
 
@@ -156,7 +157,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
     }
 
     const noop = () => {
-      //does nothing
+      // does nothing
     };
     const defaultErrorHandler = (err: any) => {
       throw err;
@@ -168,7 +169,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
         : noop,
       error: ErrorHandlingSubscriber.wrapForErrorHandling(
         error ?? defaultErrorHandler,
-        this
+        this,
       ),
       complete: complete
         ? ErrorHandlingSubscriber.wrapForErrorHandling(complete, this)
@@ -178,7 +179,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
 
   public static wrapForErrorHandling(
     handler: (arg?: any) => void,
-    instance: SafeSubscriber<any>
+    instance: SafeSubscriber<any>,
   ) {
     return async (...args: any[]) => {
       try {
@@ -194,16 +195,16 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
   protected _trySubscribe: any;
 
   static fromObservable<T>(
-    observable: Observable<T>
+    observable: Observable<T>,
   ): ErrorHandlingObservable<T> {
     const errorHandlingObservable = new ErrorHandlingObservable(
       (subscriber) => {
         observable.subscribe((value) => {
           subscriber.next(value);
         });
-      }
+      },
     );
-    return <ErrorHandlingObservable<T>>errorHandlingObservable;
+    return errorHandlingObservable as ErrorHandlingObservable<T>;
   }
 
   static isObserver<T>(value: any): value is Observer<T> {
@@ -228,11 +229,11 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
   public pipe(...operations: OperatorFunction<any, any>[]): Observable<any> {
     return ErrorHandlingObservable.fromObservable(
-      this.pipeFromArray(operations)(this)
+      this.pipeFromArray(operations)(this),
     );
   }
 
-  pipeFromArray<T, R>(fns: Array<UnaryFunction<T, R>>): UnaryFunction<T, R> {
+  pipeFromArray<T, R>(fns: UnaryFunction<T, R>[]): UnaryFunction<T, R> {
     if (fns.length === 0) {
       return this.identity as UnaryFunction<any, any>;
     }
@@ -242,9 +243,9 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
     }
 
     return function piped(input: T): R {
-      return fns.reduce(
+      return fns.reduce<any>(
         (prev: any, fn: UnaryFunction<T, R>) => fn(prev),
-        input as any
+        input,
       );
     };
   }
@@ -252,7 +253,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
   public subscribe(
     observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
     error?: ((error: any) => void) | null,
-    complete?: (() => void) | null
+    complete?: (() => void) | null,
   ): Subscription {
     const subscriber = ErrorHandlingObservable.isSubscriber(observerOrNext)
       ? new ErrorHandlingSubscriber(observerOrNext)
@@ -265,7 +266,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
         ? operator.call(subscriber, source)
         : source
         ? this._subscribe(subscriber)
-        : this._trySubscribe(subscriber)
+        : this._trySubscribe(subscriber),
     );
 
     return subscriber;
