@@ -7,8 +7,8 @@
   "scripts": {
     "build": "rimraf ./dist && tsc && cp README.md dist/ && cp release.package.json dist/package.json",
     "lint": "eslint . --ext .ts",
-    "type-check": "pnpx tsc -p ./tsconfig.src.json --noEmit",
-    "lint": "pnpx eslint . --quiet true"
+    "type-check": "pnpm tsc -p ./tsconfig.json --noEmit",
+    "lint": "pnpm eslint . --quiet true"
   },
   "dependencies": {
     "discord.js": "^13.1.0",
