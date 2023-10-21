@@ -9,7 +9,7 @@ concurrency:
 jobs:
   type-check:
     name: "Type Check"
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    runs-on: ubuntu-22.04
     permissions:
       contents: read # This is required to checkout the repo
     steps:
@@ -20,7 +20,7 @@ jobs:
       - run: pnpx type-check
   lint:
     name: "Lint"
-    runs-on: buildjet-4vcpu-ubuntu-2204
+    runs-on: ubuntu-22.04
     permissions:
       contents: read # This is required to checkout the repo
     env:
