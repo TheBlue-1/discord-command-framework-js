@@ -2,6 +2,7 @@
   "name": "discord-command-framework-js",
   "version": "0.0.1",
   "description": "framework for discord.js",
+  "packageManager": "^pnpm@8.6.9",
   "main": "src/index.ts",
   "scripts": {
     "build": "rimraf ./dist && tsc && cp README.md dist/ && cp release.package.json dist/package.json",
