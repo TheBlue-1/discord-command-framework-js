@@ -13,10 +13,9 @@ jobs:
     permissions:
       contents: read # This is required to checkout the repo
     steps:
-      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
         with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
+          run_install: true
       - run: pnpx type-check
   lint:
     name: "Lint"
@@ -26,8 +25,7 @@ jobs:
     env:
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
-      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
         with:
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
+          run_install: true
       - run: pnpx lint
