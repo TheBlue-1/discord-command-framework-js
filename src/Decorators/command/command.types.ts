@@ -23,7 +23,7 @@ export function mergeOptions(
 export abstract class Configurable {
   protected parent?: Configurable;
 
-  constructor(
+  public constructor(
     public name: string,
     protected options: CommandOptions,
   ) {}
@@ -39,7 +39,7 @@ export abstract class Configurable {
   }
 }
 export abstract class DescribedConfigurable extends Configurable {
-  constructor(
+  public constructor(
     name: string,
     public description: string,
     options: CommandOptions,
@@ -48,12 +48,12 @@ export abstract class DescribedConfigurable extends Configurable {
   }
 }
 export abstract class CallableCommandInfo extends DescribedConfigurable {
-  constructor(
+  public constructor(
     name: string,
     description: string,
 
-    public callable: (...params: any[]) => void,
-    public parentInstance: any,
+    public callable: (...params: unknown[]) => void,
+    public parentInstance: unknown,
     options: CommandOptions,
     public parameters: (InteractionAttribute | InteractionParameter)[],
   ) {
@@ -62,11 +62,11 @@ export abstract class CallableCommandInfo extends DescribedConfigurable {
 }
 
 export class CommandInfo extends CallableCommandInfo {
-  constructor(
+  public constructor(
     name: string,
     description: string,
-    callable: (...params: any[]) => void,
-    parentInstance: any,
+    callable: (...params: unknown[]) => void,
+    parentInstance: unknown,
     options: CommandOptions,
     parameters: (InteractionAttribute | InteractionParameter)[] = [],
   ) {
@@ -75,7 +75,7 @@ export class CommandInfo extends CallableCommandInfo {
 }
 
 export class CommandAreaInfo extends DescribedConfigurable {
-  constructor(
+  public constructor(
     name: string,
     description: string,
     options: CommandOptions,
@@ -87,11 +87,11 @@ export class CommandAreaInfo extends DescribedConfigurable {
 }
 
 export class SubCommandInfo extends CallableCommandInfo {
-  constructor(
+  public constructor(
     name: string,
     description: string,
-    callable: (...params: any[]) => void,
-    parentInstance: any,
+    callable: (...params: unknown[]) => void,
+    parentInstance: unknown,
     options: CommandOptions,
     parameters: (InteractionAttribute | InteractionParameter)[] = [],
   ) {
@@ -100,7 +100,7 @@ export class SubCommandInfo extends CallableCommandInfo {
 }
 
 export class SubCommandGroupInfo extends DescribedConfigurable {
-  constructor(
+  public constructor(
     name: string,
     description: string,
     options: CommandOptions,
@@ -110,7 +110,7 @@ export class SubCommandGroupInfo extends DescribedConfigurable {
   }
 }
 export class CommandGroupInfo extends Configurable {
-  constructor(
+  public constructor(
     name: string,
     options: CommandOptions,
     public commands: Record<string, CommandInfo>,

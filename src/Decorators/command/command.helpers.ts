@@ -11,8 +11,8 @@ export function commandGroupRegister() {
   const commandGroupRegister: CommandGroupRegister = {};
   for (const commandGroup of Object.values(rawCommandGroupRegister)) {
     commandGroupRegister[commandGroup.name] = commandGroup;
-    const commands = commandGroup.commands;
-    const commandAreas = commandGroup.commandAreas;
+    const { commands } = commandGroup;
+    const { commandAreas } = commandGroup;
     commandGroup.commands = {};
     commandGroup.commandAreas = {};
     for (const command of Object.values(commands)) {
@@ -20,8 +20,8 @@ export function commandGroupRegister() {
     }
     for (const commandArea of Object.values(commandAreas)) {
       commandGroup.commandAreas[commandArea.name] = commandArea;
-      const subCommands = commandArea.subCommands;
-      const subCommandGroups = commandArea.subCommandGroups;
+      const { subCommands } = commandArea;
+      const { subCommandGroups } = commandArea;
       commandArea.subCommands = {};
       commandArea.subCommandGroups = {};
       for (const subCommand of Object.values(subCommands)) {
@@ -30,7 +30,7 @@ export function commandGroupRegister() {
 
       for (const subCommandGroup of Object.values(subCommandGroups)) {
         commandArea.subCommandGroups[subCommandGroup.name] = subCommandGroup;
-        const subCommands = subCommandGroup.subCommands;
+        const { subCommands } = subCommandGroup;
         subCommandGroup.subCommands = {};
         for (const subCommand of Object.values(subCommands)) {
           subCommandGroup.subCommands[subCommand.name] = subCommand;
@@ -62,7 +62,7 @@ export const subCommandGroupRegister: Record<
   string,
   Record<string, SubCommandGroupInfo>
 > = {};
-export const targetInstanceMap: Record<string, any> = {};
+export const targetInstanceMap: Record<string, unknown> = {};
 
 export function setParentForChildren(
   parent: Configurable,

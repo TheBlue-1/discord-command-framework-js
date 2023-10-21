@@ -40,17 +40,17 @@ export class Interpreter {
     await interaction.reply("command is being executed...");
     // TODO multiple replies
     await interaction.editReply(
-      `${await command.callable.bind(command.parentInstance, ...parameters)()}`,
+      `${command.callable.bind(command.parentInstance, ...parameters)()}`,
     );
   }
 
   protected findCommand(
     interaction: CommandInteraction,
-  ): CommandInfo | SubCommandInfo {
-    if (!interaction.options.getSubcommand(false)) {
+  ): CommandInfo | SubCommandInfo | undefined {
+    if (interaction.options.getSubcommand(false) === null) {
       return this.commands[interaction.commandName];
     }
-    if (!interaction.options.getSubcommandGroup(false)) {
+    if (interaction.options.getSubcommandGroup(false) === null) {
       return this.commandAreas[interaction.commandName].subCommands[
         interaction.options.getSubcommand()
       ];
@@ -63,8 +63,8 @@ export class Interpreter {
   protected prepareParameters(
     command: CommandInfo | SubCommandInfo,
     interaction: CommandInteraction,
-  ): any[] {
-    const params: any[] = [];
+  ): unknown[] {
+    const params: unknown[] = [];
     for (const parameter of command.parameters) {
       if (parameter.methodParameterType === "attribute") {
         params.push(interaction[parameter.name]);
@@ -76,7 +76,7 @@ export class Interpreter {
           params.push(
             interaction.options.getBoolean(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -84,7 +84,7 @@ export class Interpreter {
           params.push(
             interaction.options.getUser(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -92,7 +92,7 @@ export class Interpreter {
           params.push(
             interaction.options.getRole(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -100,7 +100,7 @@ export class Interpreter {
           params.push(
             interaction.options.getMentionable(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -108,7 +108,7 @@ export class Interpreter {
           params.push(
             interaction.options.getChannel(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -116,7 +116,7 @@ export class Interpreter {
           params.push(
             interaction.options.getInteger(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -124,7 +124,7 @@ export class Interpreter {
           params.push(
             interaction.options.getNumber(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
           continue;
@@ -132,7 +132,7 @@ export class Interpreter {
           params.push(
             interaction.options.getString(
               parameter.name,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             ),
           );
       }

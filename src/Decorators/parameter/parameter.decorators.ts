@@ -19,10 +19,10 @@ export function Param(
   name: string,
   description = "",
   type: CommandOptionParameterType = "STRING",
-  defaultValue?: any,
+  defaultValue?: unknown,
 ) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {
@@ -41,10 +41,10 @@ export function Autocomplete(
   description = "",
   autocompletions: (number | string)[],
   type: CommandOptionChoiceResolvableType = "STRING",
-  defaultValue?: any,
+  defaultValue?: unknown,
 ) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {
@@ -65,10 +65,10 @@ export function Choice<T extends number | string>(
   description: string,
   choices: CommandChoice<T>[],
   type: T extends number ? "INTEGER" | "NUMBER" : "STRING",
-  defaultValue?: any,
+  defaultValue?: unknown,
 ) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {
@@ -89,10 +89,10 @@ export function Minmax(
   min?: number,
   max?: number,
   type: CommandOptionNumericResolvableType = "NUMBER",
-  defaultValue?: any,
+  defaultValue?: unknown,
 ) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {
@@ -112,10 +112,10 @@ export function ChannelParam(
   name: string,
   description = "",
   channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
-  defaultValue?: any,
+  defaultValue?: unknown,
 ) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {
@@ -140,7 +140,7 @@ export function Channel(): ReturnType<typeof Attribute> {
 
 export function Attribute(name: AttributeName) {
   return function (
-    target: { constructor: new () => any },
+    target: { constructor: new () => unknown },
     propertyKey: string,
     index: number,
   ): void {

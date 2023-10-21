@@ -116,7 +116,7 @@ export class SlashCommandGenerator {
             parameter.type,
             parameter.name,
             parameter.description,
-            !parameter.options.optional,
+            !(parameter.options.optional ?? false),
           );
           break;
         case ApplicationCommandOptionTypes.CHANNEL:
@@ -124,7 +124,7 @@ export class SlashCommandGenerator {
             parameter.type,
             parameter.name,
             parameter.description,
-            !parameter.options.optional,
+            !(parameter.options.optional ?? false),
             parameter.options.channelTypes,
           );
           break;
@@ -138,7 +138,7 @@ export class SlashCommandGenerator {
               parameter.type,
               parameter.name,
               parameter.description,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
               parameter.options.minValue,
               parameter.options.maxValue,
             );
@@ -152,7 +152,7 @@ export class SlashCommandGenerator {
               parameter.name,
               parameter.description,
               parameter.options.choices,
-              !parameter.options.optional,
+              !(parameter.options.optional ?? false),
             );
             break;
           }
@@ -160,7 +160,7 @@ export class SlashCommandGenerator {
             parameter.type,
             parameter.name,
             parameter.description,
-            !parameter.options.optional,
+            !(parameter.options.optional ?? false),
           );
           break;
       }
@@ -198,7 +198,7 @@ export class SlashCommand implements ChatInputApplicationCommandData {
   public type: ApplicationCommandTypes.CHAT_INPUT | "CHAT_INPUT" =
     ApplicationCommandTypes.CHAT_INPUT;
 
-  constructor(
+  public constructor(
     public name: string,
     public description: string,
     public options: CommandParameterOption[] | SubCommandOptions[],
@@ -223,7 +223,7 @@ export class SubCommandGroupOption
     | ApplicationCommandOptionTypes.SUB_COMMAND_GROUP
     | "SUB_COMMAND_GROUP" = ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
 
-  constructor(
+  public constructor(
     public name: string,
     public description: string,
     public options: SubCommandOption[],
@@ -246,7 +246,7 @@ export class SubCommandOption
   public type: ApplicationCommandOptionTypes.SUB_COMMAND | "SUB_COMMAND" =
     ApplicationCommandOptionTypes.SUB_COMMAND;
 
-  constructor(
+  public constructor(
     public name: string,
     public description: string,
     public options: CommandParameterOption[],
@@ -277,7 +277,7 @@ export type CommandSimpleOption =
 export class CommandNoOptionsOption
   implements ApplicationCommandNonOptionsData, DeepEqualsOption
 {
-  constructor(
+  public constructor(
     public type: CommandOptionNonChoiceResolvableType,
     public name: string,
     public description: string,
@@ -298,7 +298,7 @@ export class CommandAutocompleteOption
 {
   public autocomplete: true = true;
 
-  constructor(
+  public constructor(
     public type:
       | ApplicationCommandOptionTypes.INTEGER
       | ApplicationCommandOptionTypes.NUMBER
@@ -326,7 +326,7 @@ export class CommandAutocompleteOption
 export class CommandChannelOption
   implements ApplicationCommandChannelOptionData, DeepEqualsOption
 {
-  constructor(
+  public constructor(
     public type: CommandOptionChannelResolvableType,
     public name: string,
     public description: string,
@@ -348,7 +348,7 @@ export class CommandChannelOption
 export class CommandChoiceOption
   implements ApplicationCommandChoicesData, DeepEqualsOption
 {
-  constructor(
+  public constructor(
     public type: CommandOptionChoiceResolvableType,
     public name: string,
     public description: string,
@@ -372,7 +372,7 @@ export class CommandChoiceOption
 export class CommandMinMaxOption
   implements ApplicationCommandNumericOptionData, DeepEqualsOption
 {
-  constructor(
+  public constructor(
     public type: CommandOptionNumericResolvableType,
     public name: string,
     public description: string,
@@ -399,7 +399,7 @@ export class CommandMinMaxOption
 export class CommandChoice<T extends number | string>
   implements ApplicationCommandOptionChoice
 {
-  constructor(
+  public constructor(
     public name: string,
     public value: T,
   ) {}

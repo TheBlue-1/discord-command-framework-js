@@ -24,7 +24,7 @@ export function Command(
   options: CommandOptions = {},
 ) {
   return function (
-    target: any & { constructor: new () => void },
+    target: { constructor: new () => void },
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): void {
@@ -50,7 +50,7 @@ export function SubCommand(
   options: CommandOptions = {},
 ) {
   return function (
-    target: any & { constructor: new () => void },
+    target: { constructor: new () => void },
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ): void {
@@ -72,7 +72,7 @@ export function SubCommand(
 }
 
 export function CommandGroup(name: string, options: CommandOptions = {}) {
-  return function (target: new () => any): void {
+  return function (target: new () => unknown): void {
     if (commandRegister[target.name] === undefined) {
       commandRegister[target.name] = {};
     }
@@ -98,12 +98,12 @@ export function CommandGroup(name: string, options: CommandOptions = {}) {
   };
 }
 export function SubCommandGroup(
-  commandArea: new () => any,
+  commandArea: new () => unknown,
   name: string,
   description: string,
   options: CommandOptions = {},
 ) {
-  return function (target: new () => any): void {
+  return function (target: new () => unknown): void {
     if (subCommandGroupRegister[commandArea.name] === undefined) {
       subCommandGroupRegister[commandArea.name] = {};
     }
@@ -130,12 +130,12 @@ export function SubCommandGroup(
 }
 
 export function CommandArea(
-  commandGroup: new () => any,
+  commandGroup: new () => unknown,
   name: string,
   description: string,
   options: CommandOptions = {},
 ) {
-  return function (target: new () => any): void {
+  return function (target: new () => unknown): void {
     if (commandAreaRegister[commandGroup.name] === undefined) {
       commandAreaRegister[commandGroup.name] = {};
     }

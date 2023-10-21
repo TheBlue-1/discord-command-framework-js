@@ -9,7 +9,7 @@ import type {
 export class InteractionParameter {
   public methodParameterType: "parameter" = "parameter";
 
-  constructor(
+  public constructor(
     public name: string,
     public description: string,
     public type: CommandOptionParameterType,
@@ -29,7 +29,7 @@ export class InteractionParameter {
 export class InteractionAttribute {
   public methodParameterType: "attribute" = "attribute";
 
-  constructor(public name: AttributeName) {}
+  public constructor(public name: AttributeName) {}
 }
 
 export type AttributeName = keyof {

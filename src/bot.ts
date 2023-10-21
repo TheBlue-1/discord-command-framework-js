@@ -84,9 +84,6 @@ export class Bot {
       takeWhile((i) => i.isAutocomplete()),
       map((i) => i as AutocompleteInteraction),
     );
-    autocompleteParameter$.subscribe((s) => {
-      s.respond([{ name: "a", value: "a" }]);
-    });
     await this.client.login(this.token);
     console.log("bot online");
     await this.registerCommands(commands);
@@ -108,24 +105,28 @@ export class Bot {
       (c) => c,
     );
 
+    const calls: Promise<unknown>[] = [];
+
     for (const command of commands) {
       let oldIndex;
       if (
         (oldIndex = oldCommands.findIndex((c) => c.name === command.name)) !==
         -1
       ) {
-        this.client.application.commands.create(command);
+        calls.push(this.client.application.commands.create(command));
         continue;
       }
       const [oldCommand] = oldCommands.splice(oldIndex, 1);
       if (command.deepEquals(oldCommand)) {
         continue;
       }
-      this.client.application.commands.edit(oldCommand, command);
+      calls.push(this.client.application.commands.edit(oldCommand, command));
     }
 
     for (const oldCommand of oldCommands) {
-      this.client.application.commands.delete(oldCommand);
+      calls.push(this.client.application.commands.delete(oldCommand));
     }
+
+    await Promise.all(calls);
   }
 }

@@ -18,18 +18,6 @@ type GlobalErrorHandler = (
   kill?: boolean,
 ) => boolean;
 
-function globalHandler(
-  exitCode?: number,
-  signal?: string,
-  exception?: Error,
-  kill = true,
-) {
-  if (currentGlobalErrorHandler(exitCode, signal, exception, kill)) {
-    removeGlobalErrorHandlers();
-    process.kill(process.pid, signal);
-  }
-}
-
 export const globalDefaultHandler: GlobalErrorHandler = (
   exitCode?: number,
   signal?: string,
@@ -37,7 +25,7 @@ export const globalDefaultHandler: GlobalErrorHandler = (
   kill?: boolean,
 ) => {
   console.log(
-    `Program is about to ${!kill ? "(NOT) " : ""}exit${
+    `Program is about to ${!(kill ?? false) ? "(NOT) " : ""}exit${
       exitCode === undefined ? "" : ` with code "${exitCode}"`
     }${signal === undefined ? "" : ` with signal "${signal}"`}${
       exception === undefined
@@ -48,6 +36,32 @@ export const globalDefaultHandler: GlobalErrorHandler = (
   return kill;
 };
 let currentGlobalErrorHandler: GlobalErrorHandler = globalDefaultHandler;
+
+function globalHandler(
+  exitCode?: number,
+  signal?: string,
+  exception?: Error,
+  kill = true,
+) {
+  if (currentGlobalErrorHandler(exitCode, signal, exception, kill)) {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    removeGlobalErrorHandlers();
+    process.kill(process.pid, signal);
+  }
+}
+
+const globalHandlers = {
+  SIGINT: globalHandler.bind(undefined, undefined, "SIGINT", undefined),
+  SIGHUP: globalHandler.bind(undefined, undefined, "SIGHUP", undefined),
+  SIGQUIT: globalHandler.bind(undefined, undefined, "SIGQUIT", undefined),
+  SIGTERM: globalHandler.bind(undefined, undefined, "SIGTERM", undefined),
+  SIGUSR1: globalHandler.bind(undefined, undefined, "SIGUSR1", undefined),
+  SIGUSR2: globalHandler.bind(undefined, undefined, "SIGUSR2", undefined),
+  uncaughtException: (e: Error) =>
+    globalHandler.bind(undefined, undefined, undefined, e, false)(),
+  exit: (code: number, signal: string) =>
+    globalHandler.bind(undefined, code, signal, undefined, false)(),
+};
 
 export function initGlobalErrorHandlers(
   errorHandler: GlobalErrorHandler = globalDefaultHandler,
@@ -74,23 +88,11 @@ export function removeGlobalErrorHandlers() {
   process.removeListener("exit", globalHandlers.exit);
 }
 
-const globalHandlers = {
-  SIGINT: globalHandler.bind(undefined, undefined, "SIGINT", undefined),
-  SIGHUP: globalHandler.bind(undefined, undefined, "SIGHUP", undefined),
-  SIGQUIT: globalHandler.bind(undefined, undefined, "SIGQUIT", undefined),
-  SIGTERM: globalHandler.bind(undefined, undefined, "SIGTERM", undefined),
-  SIGUSR1: globalHandler.bind(undefined, undefined, "SIGUSR1", undefined),
-  SIGUSR2: globalHandler.bind(undefined, undefined, "SIGUSR2", undefined),
-  uncaughtException: (e: Error) =>
-    globalHandler.bind(undefined, undefined, undefined, e, false)(),
-  exit: (code: number, signal: string) =>
-    globalHandler.bind(undefined, code, signal, undefined, false)(),
-};
 // action error handling (just sends error message to user/logs)
 export class BotError extends Error {
   public readonly errorType = "BOT_ERROR";
 
-  constructor(
+  public constructor(
     private readonly userMessage?: string,
     message: string = userMessage,
     public log: boolean | "WITH_STACK" = false,
@@ -102,10 +104,10 @@ export class BotError extends Error {
     return this.userMessage ?? "an unknown error ocurred";
   }
 }
-export function errorHandler(error: any, args?: any[]) {
+export function errorHandler(error: unknown, args?: unknown[]) {
   let interaction: CommandInteraction;
   const arg0 = args?.[0];
-  if (arg0?.isCommand?.()) {
+  if (("isCommand" in arg0) & arg0.isCommand?.()) {
     interaction = arg0;
   }
 
@@ -114,7 +116,7 @@ export function errorHandler(error: any, args?: any[]) {
 
     interaction.reply(`${botError}`);
 
-    if (botError.log) {
+    if (botError.log !== false) {
       console.warn(
         `An error occurred in a request: ${botError.message} (${botError})${
           botError.log === "WITH_STACK" ? `\n${botError.stack}` : ""
@@ -124,22 +126,17 @@ export function errorHandler(error: any, args?: any[]) {
   } else {
     console.error(
       `An unknown error occurred in a request: ${error}${
-        error?.stack ? `\n${error.stack}` : ""
+        "stack" in error ? `\n${error.stack}` : ""
       }`,
     );
     interaction.reply("an unexpected error ocurred");
   }
 }
-export function handleObservableErrors<T>(
-  observable: Observable<T>,
-): Observable<T> {
-  return ErrorHandlingObservable.fromObservable(observable);
-}
 
 export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
-  constructor(
+  public constructor(
     observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
-    error?: ((e?: any) => void) | null,
+    error?: ((e?: unknown) => void) | null,
     complete?: (() => void) | null,
   ) {
     super();
@@ -159,7 +156,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
     const noop = () => {
       // does nothing
     };
-    const defaultErrorHandler = (err: any) => {
+    const defaultErrorHandler = (err: unknown) => {
       throw err;
     };
 
@@ -178,12 +175,12 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   }
 
   public static wrapForErrorHandling(
-    handler: (arg?: any) => void,
-    instance: SafeSubscriber<any>,
+    handler: (arg?: unknown) => void,
+    instance: SafeSubscriber<unknown>,
   ) {
-    return async (...args: any[]) => {
+    return async (...args: unknown[]) => {
       try {
-        await handler(...args);
+        handler(...args);
       } catch (err) {
         setTimeout(() => errorHandler(err, args));
       }
@@ -191,10 +188,10 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   }
 }
 export class ErrorHandlingObservable<T> extends Observable<T> {
-  protected _subscribe: any;
-  protected _trySubscribe: any;
+  protected _subscribe: unknown;
+  protected _trySubscribe: unknown;
 
-  static fromObservable<T>(
+  public static fromObservable<T>(
     observable: Observable<T>,
   ): ErrorHandlingObservable<T> {
     const errorHandlingObservable = new ErrorHandlingObservable(
@@ -207,35 +204,36 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
     return errorHandlingObservable as ErrorHandlingObservable<T>;
   }
 
-  static isObserver<T>(value: any): value is Observer<T> {
+  public static isObserver<T>(value: unknown): value is Observer<T> {
     return (
-      value &&
       typeof value.next === "function" &&
       typeof value.error === "function" &&
       typeof value.complete === "function"
     );
   }
 
-  static isSubscriber<T>(value: any): value is Subscriber<T> {
+  public static isSubscriber<T>(value: unknown): value is Subscriber<T> {
     return (
-      (value && value instanceof Subscriber) ||
+      value instanceof Subscriber ||
       (ErrorHandlingObservable.isObserver(value) && isSubscription(value))
     );
   }
 
-  identity<T>(x: T): T {
+  public identity<T>(x: T): T {
     return x;
   }
 
-  public pipe(...operations: OperatorFunction<any, any>[]): Observable<any> {
+  public pipe(
+    ...operations: OperatorFunction<unknown, unknown>[]
+  ): Observable<unknown> {
     return ErrorHandlingObservable.fromObservable(
       this.pipeFromArray(operations)(this),
     );
   }
 
-  pipeFromArray<T, R>(fns: UnaryFunction<T, R>[]): UnaryFunction<T, R> {
+  public pipeFromArray<T, R>(fns: UnaryFunction<T, R>[]): UnaryFunction<T, R> {
     if (fns.length === 0) {
-      return this.identity as UnaryFunction<any, any>;
+      return this.identity as UnaryFunction<unknown, unknown>;
     }
 
     if (fns.length === 1) {
@@ -243,8 +241,8 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
     }
 
     return function piped(input: T): R {
-      return fns.reduce<any>(
-        (prev: any, fn: UnaryFunction<T, R>) => fn(prev),
+      return fns.reduce<unknown>(
+        (prev: unknown, fn: UnaryFunction<T, R>) => fn(prev),
         input,
       );
     };
@@ -252,7 +250,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
   public subscribe(
     observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
-    error?: ((error: any) => void) | null,
+    error?: ((error: unknown) => void) | null,
     complete?: (() => void) | null,
   ): Subscription {
     const subscriber = ErrorHandlingObservable.isSubscriber(observerOrNext)
@@ -271,4 +269,10 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
     return subscriber;
   }
+}
+
+export function handleObservableErrors<T>(
+  observable: Observable<T>,
+): Observable<T> {
+  return ErrorHandlingObservable.fromObservable(observable);
 }
