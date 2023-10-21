@@ -18,7 +18,7 @@ export class TestModule1 {
   @Command("tc1", "first command")
   public testCommand1(
     @Channel() c: any,
-    @Param("p1", "first param", "STRING", true) s: string
+    @Param("p1", "first param", "STRING", true) s: string,
   ) {
     return "success";
   }
@@ -28,7 +28,7 @@ export class TestCommandArea1 {
   @SubCommand("tsc1", "first subcommand")
   public testSubCommand1(
     @User() u: any,
-    @Param("p2", "second param", "NUMBER") n: number
+    @Param("p2", "second param", "NUMBER") n: number,
   ) {
     return "success";
   }
@@ -50,9 +50,9 @@ export class TestSubCommandGroup1 {
         { name: "v1", value: 1 },
         { name: "v2", value: 2 },
       ],
-      "NUMBER"
+      "NUMBER",
     )
-    s: string
+    s: string,
   ) {
     // type should be number
     return "success";
@@ -75,9 +75,9 @@ export class TestModule2 {
         { name: "v2", value: "aa" },
       ],
       "STRING",
-      true
+      true,
     )
-    i: number
+    i: number,
   ) {
     return n + this.a;
   }

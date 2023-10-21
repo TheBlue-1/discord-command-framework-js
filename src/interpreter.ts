@@ -1,20 +1,20 @@
-import { CommandInteraction } from "discord.js";
+import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
-import { Observable } from "rxjs";
-import { CommandGroupRegister } from "./Decorators/command/command.helpers";
-import {
+import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+import type {
   CommandAreaInfo,
   CommandInfo,
   SubCommandInfo,
 } from "./Decorators/command/command.types";
+import type { ErrorHandlingObservable } from "./error-handling";
 
 export class Interpreter {
-  protected commandAreas: { [name: string]: CommandAreaInfo } = {};
-  protected commands: { [name: string]: CommandInfo } = {};
+  protected commandAreas: Record<string, CommandAreaInfo> = {};
+  protected commands: Record<string, CommandInfo> = {};
 
-  constructor(
-    private commandInteraction$: Observable<CommandInteraction>,
-    commandGroups: CommandGroupRegister
+  public constructor(
+    commandInteraction$: ErrorHandlingObservable<CommandInteraction>,
+    commandGroups: CommandGroupRegister,
   ) {
     commandInteraction$.subscribe(async (interaction) => {
       await this.callCommand(interaction);
@@ -28,48 +28,48 @@ export class Interpreter {
   public async callCommand(interaction: CommandInteraction) {
     const command = this.findCommand(interaction);
     if (!command) {
-      interaction.reply("command not found");
+      await interaction.reply("command not found");
       return;
     }
-    const options = command.getOptions();
+    // const options = command.getOptions();
 
-    //TODO
+    // TODO (guess: use options)
 
-    const parameters = this.prepareParameters(command, interaction);
+    const parameters = Interpreter.prepareParameters(command, interaction);
 
     await interaction.reply("command is being executed...");
-    //TODO multiple replies
+    // TODO multiple replies
     await interaction.editReply(
-      "" +
-        (await command.callable.bind(command.parentInstance, ...parameters)())
+      `${
+        (
+          await command.callable.bind(command.parentInstance, ...parameters)()
+        )?.toString() ?? "command was executed"
+      }`,
     );
-
-    return;
   }
 
   protected findCommand(
-    interaction: CommandInteraction
-  ): CommandInfo | SubCommandInfo {
-    if (!interaction.options.getSubcommand(false)) {
+    interaction: CommandInteraction,
+  ): CommandInfo | SubCommandInfo | undefined {
+    if (interaction.options.getSubcommand(false) === null) {
       return this.commands[interaction.commandName];
     }
-    if (!interaction.options.getSubcommandGroup(false)) {
-      return this.commandAreas[interaction.commandName].subCommands[
-        interaction.options.getSubcommand()
-      ];
+    const commandArea = this.commandAreas[interaction.commandName];
+    if (interaction.options.getSubcommandGroup(false) === null) {
+      return commandArea?.subCommands[interaction.options.getSubcommand()];
     }
-    return this.commandAreas[interaction.commandName].subCommandGroups[
-      interaction.options.getSubcommandGroup()
-    ].subCommands[interaction.options.getSubcommand()];
+    const subCommandGroup =
+      commandArea?.subCommandGroups[interaction.options.getSubcommandGroup()];
+    return subCommandGroup?.subCommands[interaction.options.getSubcommand()];
   }
 
-  protected prepareParameters(
+  protected static prepareParameters(
     command: CommandInfo | SubCommandInfo,
-    interaction: CommandInteraction
-  ): any[] {
-    const params: any[] = [];
+    interaction: CommandInteraction,
+  ): unknown[] {
+    const params: unknown[] = [];
     for (const parameter of command.parameters) {
-      if (parameter.methodParameterType == "attribute") {
+      if (parameter.methodParameterType === "attribute") {
         params.push(interaction[parameter.name]);
         continue;
       }
@@ -79,71 +79,72 @@ export class Interpreter {
           params.push(
             interaction.options.getBoolean(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.USER:
           params.push(
             interaction.options.getUser(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.ROLE:
           params.push(
             interaction.options.getRole(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.MENTIONABLE:
           params.push(
             interaction.options.getMentionable(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.CHANNEL:
           params.push(
             interaction.options.getChannel(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.INTEGER:
           params.push(
             interaction.options.getInteger(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.NUMBER:
           params.push(
             interaction.options.getNumber(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
           continue;
         case ApplicationCommandOptionTypes.STRING:
           params.push(
             interaction.options.getString(
               parameter.name,
-              !parameter.options.optional
-            )
+              !(parameter.options.optional ?? false),
+            ),
           );
       }
       if (
-        params[params.length - 1] == undefined &&
-        parameter.options.defaultValue != undefined
-      )
+        params[params.length - 1] === undefined &&
+        parameter.options.defaultValue !== undefined
+      ) {
         params[params.length - 1] = parameter.options.defaultValue;
+      }
     }
 
     return params;
