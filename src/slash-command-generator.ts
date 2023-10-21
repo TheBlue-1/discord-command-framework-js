@@ -145,15 +145,46 @@ export type CommandOptionParameterType = Exclude<
   CommandOptionDataTypeResolvable,
   CommandOptionSubOptionResolvableType
 >;
+export function commandOptionParameterTypeToEnum(
+  type: CommandOptionParameterType,
+): ApplicationCommandOptionTypes & CommandOptionParameterType {
+  switch (type) {
+    case "BOOLEAN":
+    case ApplicationCommandOptionTypes.BOOLEAN:
+      return ApplicationCommandOptionTypes.BOOLEAN;
+    case "USER":
+    case ApplicationCommandOptionTypes.USER:
+      return ApplicationCommandOptionTypes.USER;
+    case "ROLE":
+    case ApplicationCommandOptionTypes.ROLE:
+      return ApplicationCommandOptionTypes.ROLE;
+    case "MENTIONABLE":
+    case ApplicationCommandOptionTypes.MENTIONABLE:
+      return ApplicationCommandOptionTypes.MENTIONABLE;
+    case "CHANNEL":
+    case ApplicationCommandOptionTypes.CHANNEL:
+      return ApplicationCommandOptionTypes.CHANNEL;
+    case "INTEGER":
+    case ApplicationCommandOptionTypes.INTEGER:
+      return ApplicationCommandOptionTypes.INTEGER;
+    case "NUMBER":
+    case ApplicationCommandOptionTypes.NUMBER:
+      return ApplicationCommandOptionTypes.NUMBER;
+    case "STRING":
+    case ApplicationCommandOptionTypes.STRING:
+      return ApplicationCommandOptionTypes.STRING;
 
-export class SlashCommandGenerator {
-  public generate(groups: CommandGroupRegister): SlashCommand[] {
+    default:
+      return unreachable(type);
+  }
+}
+export const SlashCommandGenerator = {
+  generate(groups: CommandGroupRegister): SlashCommand[] {
     const slashCommands: SlashCommand[] = [];
     for (const group of Object.values(groups)) {
       for (const command of Object.values(group.commands)) {
-        const parameterOptions = this.getCommandParameterOptions(
-          command.parameters,
-        );
+        const parameterOptions =
+          SlashCommandGenerator.getCommandParameterOptions(command.parameters);
         slashCommands.push(
           new SlashCommand(command.name, command.description, parameterOptions),
         );
@@ -162,9 +193,10 @@ export class SlashCommandGenerator {
         const subCommandOptions: SubCommandOptions[] = [];
 
         for (const subCommand of Object.values(commandArea.subCommands)) {
-          const parameterOptions = this.getCommandParameterOptions(
-            subCommand.parameters,
-          );
+          const parameterOptions =
+            SlashCommandGenerator.getCommandParameterOptions(
+              subCommand.parameters,
+            );
 
           subCommandOptions.push(
             new SubCommandOption(
@@ -180,9 +212,10 @@ export class SlashCommandGenerator {
         )) {
           const innerSubCommandOptions: SubCommandOption[] = [];
           for (const subCommand of Object.values(subCommandGroup.subCommands)) {
-            const parameterOptions = this.getCommandParameterOptions(
-              subCommand.parameters,
-            );
+            const parameterOptions =
+              SlashCommandGenerator.getCommandParameterOptions(
+                subCommand.parameters,
+              );
 
             innerSubCommandOptions.push(
               new SubCommandOption(
@@ -210,9 +243,9 @@ export class SlashCommandGenerator {
       }
     }
     return slashCommands;
-  }
+  },
 
-  protected getCommandParameterOptions(
+  getCommandParameterOptions(
     parameters: (InteractionAttribute | InteractionParameter)[],
   ): CommandParameterOption[] {
     const parameterOptions: CommandParameterOption[] = [];
@@ -222,7 +255,7 @@ export class SlashCommandGenerator {
       }
 
       let options: CommandParameterOption;
-      parameter.type = SlashCommandGenerator.toEnumType(parameter.type);
+      parameter.type = commandOptionParameterTypeToEnum(parameter.type);
       switch (parameter.type) {
         case ApplicationCommandOptionTypes.BOOLEAN:
         case ApplicationCommandOptionTypes.USER:
@@ -300,39 +333,5 @@ export class SlashCommandGenerator {
       parameterOptions.push(options);
     }
     return parameterOptions;
-  }
-
-  protected static toEnumType(
-    type: CommandOptionParameterType,
-  ): ApplicationCommandOptionTypes & CommandOptionParameterType {
-    switch (type) {
-      case "BOOLEAN":
-      case ApplicationCommandOptionTypes.BOOLEAN:
-        return ApplicationCommandOptionTypes.BOOLEAN;
-      case "USER":
-      case ApplicationCommandOptionTypes.USER:
-        return ApplicationCommandOptionTypes.USER;
-      case "ROLE":
-      case ApplicationCommandOptionTypes.ROLE:
-        return ApplicationCommandOptionTypes.ROLE;
-      case "MENTIONABLE":
-      case ApplicationCommandOptionTypes.MENTIONABLE:
-        return ApplicationCommandOptionTypes.MENTIONABLE;
-      case "CHANNEL":
-      case ApplicationCommandOptionTypes.CHANNEL:
-        return ApplicationCommandOptionTypes.CHANNEL;
-      case "INTEGER":
-      case ApplicationCommandOptionTypes.INTEGER:
-        return ApplicationCommandOptionTypes.INTEGER;
-      case "NUMBER":
-      case ApplicationCommandOptionTypes.NUMBER:
-        return ApplicationCommandOptionTypes.NUMBER;
-      case "STRING":
-      case ApplicationCommandOptionTypes.STRING:
-        return ApplicationCommandOptionTypes.STRING;
-
-      default:
-        return unreachable(type);
-    }
-  }
-}
+  },
+};

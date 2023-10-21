@@ -35,10 +35,10 @@ export function Param(
 }
 export function Autocomplete(
   name: string,
-  description = "",
   autocompletions: (number | string)[],
   type: CommandOptionChoiceResolvableType = "STRING",
   defaultValue?: unknown,
+  description = "",
 ) {
   return paramDecorator((target, propertyKey, index) => {
     setParam(

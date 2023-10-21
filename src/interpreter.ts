@@ -40,7 +40,12 @@ export class Interpreter {
     await interaction.reply("command is being executed...");
     // TODO multiple replies
     await interaction.editReply(
-      `${command.callable.bind(command.parentInstance, ...parameters)()}`,
+      `${
+        (await command.callable.bind(
+          command.parentInstance,
+          ...parameters,
+        )()) ?? "command was executed"
+      }`,
     );
   }
 

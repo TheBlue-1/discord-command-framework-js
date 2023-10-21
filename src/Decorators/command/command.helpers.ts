@@ -16,9 +16,9 @@ export const commandAreaRegister: Record<
 > = {};
 
 export function commandGroupRegister() {
-  const commandGroupRegister: CommandGroupRegister = {};
+  const register: CommandGroupRegister = {};
   for (const commandGroup of Object.values(rawCommandGroupRegister)) {
-    commandGroupRegister[commandGroup.name] = commandGroup;
+    register[commandGroup.name] = commandGroup;
     const { commands } = commandGroup;
     const { commandAreas } = commandGroup;
     commandGroup.commands = {};
@@ -38,15 +38,15 @@ export function commandGroupRegister() {
 
       for (const subCommandGroup of Object.values(subCommandGroups)) {
         commandArea.subCommandGroups[subCommandGroup.name] = subCommandGroup;
-        const { subCommands } = subCommandGroup;
+        const groupSubCommands = subCommandGroup.subCommands;
         subCommandGroup.subCommands = {};
-        for (const subCommand of Object.values(subCommands)) {
+        for (const subCommand of Object.values(groupSubCommands)) {
           subCommandGroup.subCommands[subCommand.name] = subCommand;
         }
       }
     }
   }
-  return commandGroupRegister;
+  return register;
 }
 
 export function flatCommandAreaRegister(): Record<string, CommandAreaInfo> {

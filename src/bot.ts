@@ -73,8 +73,7 @@ export class Bot {
 
     console.log("bot starting");
 
-    const generator = new SlashCommandGenerator();
-    const commands = generator.generate(commandGroups);
+    const commands = SlashCommandGenerator.generate(commandGroups);
 
     const createdInteraction$ = this.listenTo("interactionCreate");
     const commandInteraction$ = createdInteraction$.pipe(

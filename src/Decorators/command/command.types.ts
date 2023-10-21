@@ -52,7 +52,7 @@ export abstract class CallableCommandInfo extends DescribedConfigurable {
     name: string,
     description: string,
 
-    public callable: () => Promise<void> | void,
+    public callable: () => Promise<string | undefined> | string | undefined,
     public parentInstance: unknown,
     options: CommandOptions,
     public parameters: (InteractionAttribute | InteractionParameter)[],
@@ -65,7 +65,7 @@ export class CommandInfo extends CallableCommandInfo {
   public constructor(
     name: string,
     description: string,
-    callable: () => Promise<void> | void,
+    callable: () => Promise<string | undefined> | string | undefined,
     parentInstance: unknown,
     options: CommandOptions,
     parameters: (InteractionAttribute | InteractionParameter)[] = [],
@@ -90,7 +90,7 @@ export class SubCommandInfo extends CallableCommandInfo {
   public constructor(
     name: string,
     description: string,
-    callable: () => Promise<void> | void,
+    callable: () => Promise<string | undefined> | string | undefined,
     parentInstance: unknown,
     options: CommandOptions,
     parameters: (InteractionAttribute | InteractionParameter)[] = [],
