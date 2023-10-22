@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/class-methods-use-this */
 import { ChannelTypes } from "discord.js/typings/enums";
 import {
   Channel,
@@ -17,8 +18,8 @@ import {
 export class TestModule1 {
   @Command("tc1", "first command")
   public testCommand1(
-    @Channel() c: any,
-    @Param("p1", "first param", "STRING", true) s: string,
+    @Channel() _c: unknown,
+    @Param("p1", "first param", "STRING", true) _s: string,
   ) {
     return "success";
   }
@@ -27,8 +28,8 @@ export class TestModule1 {
 export class TestCommandArea1 {
   @SubCommand("tsc1", "first subcommand")
   public testSubCommand1(
-    @User() u: any,
-    @Param("p2", "second param", "NUMBER") n: number,
+    @User() _u: unknown,
+    @Param("p2", "second param", "NUMBER") _n: number,
   ) {
     return "success";
   }
@@ -37,7 +38,7 @@ export class TestCommandArea1 {
 @SubCommandGroup(TestCommandArea1, "tscg1", "first subcommand group")
 export class TestSubCommandGroup1 {
   @SubCommand("tsc2", "second subcommand")
-  public testSubCommand2(@Param("p3", "third param", "USER") u: any) {
+  public testSubCommand2(@Param("p3", "third param", "USER") _u: unknown) {
     return "success";
   }
 
@@ -52,7 +53,7 @@ export class TestSubCommandGroup1 {
       ],
       "NUMBER",
     )
-    s: string,
+    _s: string,
   ) {
     // type should be number
     return "success";
@@ -66,7 +67,7 @@ export class TestModule2 {
   @Command("tc2", "second command")
   public testCommand2(
     @Minmax("p5", "fifth param", 3, 8, "NUMBER") n: number,
-    @ChannelParam("p6", "sixth param", [ChannelTypes.GUILD_VOICE]) c: any,
+    @ChannelParam("p6", "sixth param", [ChannelTypes.GUILD_VOICE]) _c: unknown,
     @Choice(
       "p7",
       "seventh param",
@@ -77,7 +78,7 @@ export class TestModule2 {
       "STRING",
       true,
     )
-    i: number,
+    _i: number,
   ) {
     return n + this.a;
   }

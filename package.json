@@ -6,8 +6,8 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "rimraf ./dist && tsc && cp README.md dist/ && cp release.package.json dist/package.json",
-    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
-    "type-check": "pnpm tsc -p ./tsconfig.json --noEmit"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "type-check": "pnpm tsc -p ./test/tsconfig.json --noEmit"
   },
   "dependencies": {
     "discord.js": "^13.1.0",
@@ -24,7 +24,6 @@
     "eslint-plugin-jsdoc": "^46.8.2",
     "eslint-plugin-prettier": "^5.0.1",
     "rimraf": "^5.0.5",
-    "ts-node": "^10.7.0",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2"
   }

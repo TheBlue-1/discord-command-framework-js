@@ -5,10 +5,12 @@ import "./testCommandGroups";
 
 function start() {
   initGlobalErrorHandlers();
-  const token = config.token;
+  const { token } = config;
 
   const bot = new Bot(token);
 
-  bot.start();
+  bot.start().catch((err) => {
+    console.error(err);
+  });
 }
 start();
