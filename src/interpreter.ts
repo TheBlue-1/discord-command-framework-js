@@ -74,70 +74,34 @@ export class Interpreter {
         continue;
       }
 
+      const required = !(parameter.options.optional ?? false);
+
       switch (parameter.type) {
         case ApplicationCommandOptionTypes.BOOLEAN:
-          params.push(
-            interaction.options.getBoolean(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getBoolean(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.USER:
-          params.push(
-            interaction.options.getUser(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getUser(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.ROLE:
-          params.push(
-            interaction.options.getRole(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getRole(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.MENTIONABLE:
           params.push(
-            interaction.options.getMentionable(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
+            interaction.options.getMentionable(parameter.name, required),
           );
           continue;
         case ApplicationCommandOptionTypes.CHANNEL:
-          params.push(
-            interaction.options.getChannel(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getChannel(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.INTEGER:
-          params.push(
-            interaction.options.getInteger(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getInteger(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.NUMBER:
-          params.push(
-            interaction.options.getNumber(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getNumber(parameter.name, required));
           continue;
         case ApplicationCommandOptionTypes.STRING:
-          params.push(
-            interaction.options.getString(
-              parameter.name,
-              !(parameter.options.optional ?? false),
-            ),
-          );
+          params.push(interaction.options.getString(parameter.name, required));
       }
       if (
         params[params.length - 1] === undefined &&
