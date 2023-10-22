@@ -38,7 +38,11 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install --frozen-lockfile
+          cd ./test
+          pnpm install --frozen-lockfile
+          cd ..
 
       - run: pnpm type-check
   lint:
@@ -74,6 +78,10 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install --frozen-lockfile
+          cd ./test
+          pnpm install --frozen-lockfile
+          cd ..
 
       - run: pnpm lint
