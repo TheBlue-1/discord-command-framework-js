@@ -1,16 +1,34 @@
 import { Bot, initGlobalErrorHandlers } from "discord-command-framework-js";
 
-import * as config from "./local.config.json";
-import "./testCommandGroups";
+const LocalConfigPath = "./local.config.json";
 
-function start() {
+async function readConfig() {
+  const config = (await import(LocalConfigPath)) as unknown;
+
+  const token =
+    typeof config === "object" &&
+    config &&
+    "token" in config &&
+    typeof config.token === "string"
+      ? config.token
+      : undefined;
+
+  if (token === undefined) {
+    throw new Error("Token missing in local.config.json");
+  }
+
+  return { token };
+}
+
+async function start() {
   initGlobalErrorHandlers();
+  const config = await readConfig();
   const { token } = config;
 
   const bot = new Bot(token);
 
-  bot.start().catch((err) => {
-    console.error(err);
-  });
+  await bot.start();
 }
-start();
+start().catch((err) => {
+  console.error(err);
+});
