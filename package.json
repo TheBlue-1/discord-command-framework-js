@@ -5,9 +5,11 @@
   "packageManager": "pnpm@8.6.9",
   "main": "src/index.ts",
   "scripts": {
-    "build": "rimraf ./dist && tsc && cp README.md dist/ && cp release.package.json dist/package.json",
+    "build": "rimraf ./dist && pnpm tsc && cp README.md dist/ && cp release.package.json dist/package.json",
+    "build-win": "pnpm rimraf ./dist && pnpm tsc && copy README.md dist && copy release.package.json \"dist/package.json\"",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "type-check": "pnpm tsc -p ./test/tsconfig.json --noEmit"
+    "type-check": "pnpm tsc -p ./test/tsconfig.json --noEmit",
+    "release": "npm publish ./target"
   },
   "dependencies": {
     "discord.js": "^13.1.0",
