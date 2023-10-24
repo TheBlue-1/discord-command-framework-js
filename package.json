@@ -1,6 +1,6 @@
 {
   "name": "discord-command-framework-js",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "framework for discord.js",
   "packageManager": "pnpm@8.6.9",
   "main": "src/index.ts",
@@ -9,7 +9,7 @@
     "build-win": "pnpm rimraf ./dist && pnpm tsc && copy README.md dist && copy release.package.json \"dist/package.json\"",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "type-check": "pnpm tsc -p ./test/tsconfig.json --noEmit",
-    "release": "npm publish ./target"
+    "release": "npm publish ./dist "
   },
   "dependencies": {
     "discord.js": "^13.1.0",
