@@ -1,6 +1,6 @@
 {
   "name": "discord-command-framework-js",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "framework for discord.js",
   "dependencies": {
     "discord.js": "^13.1.0",
