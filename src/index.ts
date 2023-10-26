@@ -1,3 +1,4 @@
+export * from "discord.js"; // maybe just subsets?
 export * from "./Decorators/command/command.decorators";
 export * from "./Decorators/parameter/parameter.decorators";
 export * from "./bot";
