@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/class-methods-use-this */
-import { ChannelTypes } from "discord.js/typings/enums";
 import {
-  Channel,
   ChannelParam,
+  ChannelType,
   Choice,
   Command,
   CommandArea,
@@ -67,7 +66,7 @@ export class TestModule2 {
   @Command("tc2", "second command")
   public testCommand2(
     @Minmax("p5", "fifth param", 3, 8, "NUMBER") n: number,
-    @ChannelParam("p6", "sixth param", [ChannelTypes.GUILD_VOICE]) _c: unknown,
+    @ChannelParam("p6", "sixth param", [ChannelType.GuildVoice]) _c: unknown,
     @Choice(
       "p7",
       "seventh param",

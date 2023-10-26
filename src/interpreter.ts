@@ -1,5 +1,7 @@
-import type { CommandInteraction } from "discord.js";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
+import {
+  ApplicationCommandOptionType,
+  type CommandInteraction,
+} from "discord.js";
 import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
   CommandAreaInfo,
@@ -77,30 +79,30 @@ export class Interpreter {
       const required = !(parameter.options.optional ?? false);
 
       switch (parameter.type) {
-        case ApplicationCommandOptionTypes.BOOLEAN:
+        case ApplicationCommandOptionType.Boolean:
           params.push(interaction.options.getBoolean(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.USER:
+        case ApplicationCommandOptionType.User:
           params.push(interaction.options.getUser(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.ROLE:
+        case ApplicationCommandOptionType.Role:
           params.push(interaction.options.getRole(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.MENTIONABLE:
+        case ApplicationCommandOptionType.Mentionable:
           params.push(
             interaction.options.getMentionable(parameter.name, required),
           );
           continue;
-        case ApplicationCommandOptionTypes.CHANNEL:
+        case ApplicationCommandOptionType.Channel:
           params.push(interaction.options.getChannel(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.INTEGER:
+        case ApplicationCommandOptionType.Integer:
           params.push(interaction.options.getInteger(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.NUMBER:
+        case ApplicationCommandOptionType.Number:
           params.push(interaction.options.getNumber(parameter.name, required));
           continue;
-        case ApplicationCommandOptionTypes.STRING:
+        case ApplicationCommandOptionType.String:
           params.push(interaction.options.getString(parameter.name, required));
       }
       if (

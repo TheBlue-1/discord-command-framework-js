@@ -1,9 +1,9 @@
-import type {
-  CommandOptionChoiceResolvableType,
-  CommandOptionNumericResolvableType,
-  ExcludeEnum,
+import {
+  ApplicationCommandOptionType,
+  type ChannelType,
+  type CommandOptionChoiceResolvableType,
+  type CommandOptionNumericResolvableType,
 } from "discord.js";
-import type { ChannelTypes } from "discord.js/typings/enums";
 import type {
   CommandChoice,
   CommandOptionParameterType,
@@ -19,7 +19,7 @@ import {
 export function Param(
   name: string,
   description = "",
-  type: CommandOptionParameterType = "STRING",
+  type: CommandOptionParameterType = ApplicationCommandOptionType.String,
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {
@@ -36,7 +36,7 @@ export function Param(
 export function Autocomplete(
   name: string,
   autocompletions: (number | string)[],
-  type: CommandOptionChoiceResolvableType = "STRING",
+  type: CommandOptionChoiceResolvableType = ApplicationCommandOptionType.String,
   defaultValue?: unknown,
   description = "",
 ) {
@@ -57,7 +57,9 @@ export function Choice<T extends number | string>(
   name: string,
   description: string,
   choices: CommandChoice<T>[],
-  type: T extends number ? "INTEGER" | "NUMBER" : "STRING",
+  type: T extends number
+    ? ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number
+    : ApplicationCommandOptionType.String,
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {
@@ -77,7 +79,7 @@ export function Minmax(
   description = "",
   min?: number,
   max?: number,
-  type: CommandOptionNumericResolvableType = "NUMBER",
+  type: CommandOptionNumericResolvableType = ApplicationCommandOptionType.Number,
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {
@@ -96,7 +98,7 @@ export function Minmax(
 export function ChannelParam(
   name: string,
   description = "",
-  channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[],
+  channelTypes?: ChannelType[],
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {
@@ -104,10 +106,15 @@ export function ChannelParam(
       target.constructor.name,
       propertyKey,
       index,
-      new InteractionParameter(name, description, "CHANNEL", {
-        defaultValue,
-        channelTypes,
-      }),
+      new InteractionParameter(
+        name,
+        description,
+        ApplicationCommandOptionType.Channel,
+        {
+          defaultValue,
+          channelTypes,
+        },
+      ),
     );
   });
 }

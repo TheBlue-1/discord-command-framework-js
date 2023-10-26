@@ -1,4 +1,4 @@
-import type { PermissionString } from "discord.js";
+import type { PermissionsString } from "discord.js";
 import type { CustomUnknown } from "../../types";
 import type {
   InteractionAttribute,
@@ -7,7 +7,7 @@ import type {
 
 export interface CommandOptions {
   access?: AccessLevel;
-  neededPermissions?: PermissionString[];
+  neededPermissions?: PermissionsString[];
 }
 export function mergeOptions(
   parent: CommandOptions,

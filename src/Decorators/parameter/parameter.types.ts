@@ -1,31 +1,26 @@
-import type { CommandInteraction, ExcludeEnum } from "discord.js";
-import type { ChannelTypes } from "discord.js/typings/enums";
-
-import {
-  commandOptionParameterTypeToEnum,
-  type CommandChoice,
-  type CommandOptionParameterType,
+import type { ChannelType, CommandInteraction } from "discord.js";
+import type {
+  CommandChoice,
+  CommandOptionParameterType,
 } from "../../slash-command-generator";
 
 export class InteractionParameter {
   public methodParameterType = "parameter" as const;
-  public type: Exclude<CommandOptionParameterType, string>;
 
   public constructor(
     public name: string,
     public description: string,
-    type: CommandOptionParameterType,
+    public type: CommandOptionParameterType,
     public options: {
       optional?: boolean;
       defaultValue?: unknown;
-      channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[] | undefined;
+      channelTypes?: ChannelType[] | undefined;
       choices?: CommandChoice<number | string>[];
       minValue?: number | undefined;
       maxValue?: number | undefined;
       autocompletions?: (number | string)[];
     },
   ) {
-    this.type = commandOptionParameterTypeToEnum(type);
     if (options.defaultValue !== undefined) options.optional = true;
   }
 }
