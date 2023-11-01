@@ -35,17 +35,19 @@ function hasFunction<T extends string>(
 
 export function methodDecorator(
   fn: <T extends "constructor" extends T ? never : string>(
-    target: Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
-      constructor: new () => unknown;
-    },
+    target: Readonly<
+      Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
+        constructor: new () => unknown;
+      }
+    >,
     propertyKey: T,
-    descriptor: PropertyDescriptor,
+    descriptor: Readonly<PropertyDescriptor>,
   ) => void,
 ) {
   return function (
     target: object,
     propertyKey: string | symbol,
-    descriptor: PropertyDescriptor,
+    descriptor: Readonly<PropertyDescriptor>,
   ): void {
     if (typeof propertyKey !== "string") {
       throw new Error("propertyKey is not a string");
@@ -70,9 +72,11 @@ export function classDecorator(fn: (target: new () => unknown) => void) {
 
 export function paramDecorator(
   fn: <T extends "constructor" extends T ? never : string>(
-    target: Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
-      constructor: new () => unknown;
-    },
+    target: Readonly<
+      Record<T, () => CustomUnknown | Promise<CustomUnknown>> & {
+        constructor: new () => unknown;
+      }
+    >,
     propertyKey: T,
     parameterIndex: number,
   ) => void,

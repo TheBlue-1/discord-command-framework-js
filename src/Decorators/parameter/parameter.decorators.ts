@@ -35,7 +35,7 @@ export function Param(
 }
 export function Autocomplete(
   name: string,
-  autocompletions: (number | string)[],
+  autocompletions: readonly (number | string)[],
   type: CommandOptionChoiceResolvableType = ApplicationCommandOptionType.String,
   defaultValue?: unknown,
   description = "",
@@ -56,7 +56,7 @@ export function Autocomplete(
 export function Choice<T extends number | string>(
   name: string,
   description: string,
-  choices: CommandChoice<T>[],
+  choices: readonly CommandChoice<T>[],
   type: T extends number
     ? ApplicationCommandOptionType.Integer | ApplicationCommandOptionType.Number
     : ApplicationCommandOptionType.String,
@@ -98,7 +98,7 @@ export function Minmax(
 export function ChannelParam(
   name: string,
   description = "",
-  channelTypes?: ChannelType[],
+  channelTypes?: readonly ChannelType[],
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {
@@ -130,9 +130,9 @@ export function Attribute(name: AttributeName) {
   });
 }
 
-export function User(): ReturnType<typeof Attribute> {
+export function Author(): ReturnType<typeof Attribute> {
   return Attribute("user");
 }
-export function Channel(): ReturnType<typeof Attribute> {
+export function CommandChannel(): ReturnType<typeof Attribute> {
   return Attribute("channel");
 }

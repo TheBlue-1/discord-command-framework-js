@@ -7,7 +7,7 @@ import {
   type Interaction,
 } from "discord.js";
 import deepEquals from "fast-deep-equal";
-import { Observable, map, takeWhile } from "rxjs";
+import { Observable, map, takeWhile, type Subscriber } from "rxjs";
 import {
   commandGroupRegister,
   type CommandGroupRegister,
@@ -21,6 +21,7 @@ import {
   SlashCommandGenerator,
   type SlashCommand,
 } from "./slash-command-generator";
+import type { DeepReadonly } from "./types";
 
 export class Bot {
   protected data:
@@ -42,7 +43,7 @@ export class Bot {
 
   public constructor(
     private readonly token: string,
-    options: ClientOptions = { intents: [] },
+    options: DeepReadonly<ClientOptions> = { intents: [] },
   ) {
     this._client = new Client(options);
   }
@@ -58,7 +59,9 @@ export class Bot {
     event: T,
   ): ErrorHandlingObservable<ClientEvents[T] | ClientEvents[T][0]> {
     const observable = new Observable<ClientEvents[T] | ClientEvents[T][0]>(
-      (subscriber) => {
+      (
+        subscriber: Readonly<Subscriber<ClientEvents[T] | ClientEvents[T][0]>>,
+      ) => {
         this._client.on(event, (...params: ClientEvents[T]) => {
           if (params.length === 1) {
             subscriber.next(params[0]);
@@ -110,10 +113,8 @@ export class Bot {
     };
   }
 
-  private async registerCommands(commands: SlashCommand[]) {
-    const oldCommands = (await this.client.application.commands.fetch()).map(
-      (c) => c,
-    );
+  private async registerCommands(commands: readonly SlashCommand[]) {
+    const oldCommands = [...(await this.client.application.commands.fetch())];
 
     const created: Promise<unknown>[] = [];
     const edited: Promise<unknown>[] = [];

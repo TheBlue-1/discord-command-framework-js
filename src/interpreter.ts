@@ -2,21 +2,24 @@ import {
   ApplicationCommandOptionType,
   type CommandInteraction,
 } from "discord.js";
-import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+import type { ReadOnlyCommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
   CommandAreaInfo,
   CommandInfo,
   SubCommandInfo,
 } from "./Decorators/command/command.types";
 import type { ErrorHandlingObservable } from "./error-handling";
+import type { DeepReadonly } from "./types";
 
 export class Interpreter {
   protected commandAreas: Record<string, CommandAreaInfo> = {};
   protected commands: Record<string, CommandInfo> = {};
 
   public constructor(
-    commandInteraction$: ErrorHandlingObservable<CommandInteraction>,
-    commandGroups: CommandGroupRegister,
+    commandInteraction$: DeepReadonly<
+      ErrorHandlingObservable<CommandInteraction>
+    >,
+    commandGroups: ReadOnlyCommandGroupRegister,
   ) {
     commandInteraction$.subscribe(async (interaction) => {
       await this.callCommand(interaction);
@@ -27,7 +30,7 @@ export class Interpreter {
     }
   }
 
-  public async callCommand(interaction: CommandInteraction) {
+  public async callCommand(interaction: DeepReadonly<CommandInteraction>) {
     const command = this.findCommand(interaction);
     if (!command) {
       await interaction.reply("command not found");
@@ -51,7 +54,7 @@ export class Interpreter {
   }
 
   protected findCommand(
-    interaction: CommandInteraction,
+    interaction: DeepReadonly<CommandInteraction>,
   ): CommandInfo | SubCommandInfo | undefined {
     if (interaction.options.getSubcommand(false) === null) {
       return this.commands[interaction.commandName];
@@ -66,8 +69,8 @@ export class Interpreter {
   }
 
   protected static prepareParameters(
-    command: CommandInfo | SubCommandInfo,
-    interaction: CommandInteraction,
+    command: Readonly<CommandInfo | SubCommandInfo>,
+    interaction: DeepReadonly<CommandInteraction>,
   ): unknown[] {
     const params: unknown[] = [];
     for (const parameter of command.parameters) {
@@ -78,12 +81,18 @@ export class Interpreter {
 
       const required = !(parameter.options.optional ?? false);
 
+      const data = interaction.options.get(parameter.name, required);
+
+      if (data?.type === parameter.type) {
+        throw new Error("invalid parameter type received");
+      }
+
       switch (parameter.type) {
         case ApplicationCommandOptionType.Boolean:
-          params.push(interaction.options.getBoolean(parameter.name, required));
+          params.push(interaction.options.get(parameter.name, required)?.value);
           continue;
         case ApplicationCommandOptionType.User:
-          params.push(interaction.options.getUser(parameter.name, required));
+          params.push(interaction.options.get(parameter.name, required)?.user);
           continue;
         case ApplicationCommandOptionType.Role:
           params.push(interaction.options.getRole(parameter.name, required));

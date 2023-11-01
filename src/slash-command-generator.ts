@@ -18,38 +18,40 @@ import {
   type CommandOptionNumericResolvableType,
   type CommandOptionSubOptionResolvableType,
 } from "discord.js";
-import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+import type { ReadOnlyCommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
   InteractionAttribute,
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
 
 export class SlashCommand implements ChatInputApplicationCommandData {
-  public type = ApplicationCommandType.ChatInput as const;
+  public readonly type = ApplicationCommandType.ChatInput as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: CommandParameterOption[] | SubCommandOptions[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options:
+      | readonly CommandParameterOption[]
+      | readonly SubCommandOptions[],
   ) {}
 }
 
 export class SubCommandGroupOption implements ApplicationCommandSubGroupData {
-  public type = ApplicationCommandOptionType.SubcommandGroup as const;
+  public readonly type = ApplicationCommandOptionType.SubcommandGroup as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: SubCommandOption[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options: readonly SubCommandOption[],
   ) {}
 }
 export class SubCommandOption implements ApplicationCommandSubCommandData {
-  public type = ApplicationCommandOptionType.Subcommand as const;
+  public readonly type = ApplicationCommandOptionType.Subcommand as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: CommandParameterOption[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options: readonly CommandParameterOption[],
   ) {}
 }
 
@@ -67,23 +69,23 @@ export class CommandNoOptionsOption
   implements ApplicationCommandNonOptionsData
 {
   public constructor(
-    public type: CommandOptionNonChoiceResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
+    public readonly type: CommandOptionNonChoiceResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
   ) {}
 }
 
 export class CommandAutocompleteOption
   implements ApplicationCommandAutocompleteStringOption
 {
-  public autocomplete = true as const;
+  public readonly autocomplete = true as const;
 
   public constructor(
-    public type: ApplicationCommandOptionType.String,
-    public name: string,
-    public description: string,
-    public required: boolean,
+    public readonly type: ApplicationCommandOptionType.String,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
   ) {
     this.autocomplete = false as true; // TODO think of something
   }
@@ -92,41 +94,41 @@ export class CommandChannelOption
   implements ApplicationCommandChannelOptionData
 {
   public constructor(
-    public type: CommandOptionChannelResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
-    public channelTypes: ChannelType[] | undefined,
+    public readonly type: CommandOptionChannelResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
+    public readonly channelTypes: readonly ChannelType[] | undefined,
   ) {}
 }
 
 export class CommandChoiceOption implements ApplicationCommandChoicesData {
   public constructor(
-    public type: CommandOptionChoiceResolvableType,
-    public name: string,
-    public description: string,
-    public choices: CommandChoice<number | string>[],
-    public required: boolean,
+    public readonly type: CommandOptionChoiceResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly choices: readonly CommandChoice<number | string>[],
+    public readonly required: boolean,
   ) {}
 }
 export class CommandMinMaxOption
   implements ApplicationCommandNumericOptionData
 {
   public constructor(
-    public type: CommandOptionNumericResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
-    public minValue: number | undefined,
-    public maxValue: number | undefined,
+    public readonly type: CommandOptionNumericResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
+    public readonly minValue: number | undefined,
+    public readonly maxValue: number | undefined,
   ) {}
 }
 export class CommandChoice<T extends number | string>
   implements ApplicationCommandOptionChoiceData
 {
   public constructor(
-    public name: string,
-    public value: T,
+    public readonly name: string,
+    public readonly value: T,
   ) {}
 }
 
@@ -136,7 +138,7 @@ export type CommandOptionParameterType = Exclude<
 >;
 
 export const SlashCommandGenerator = {
-  generate(groups: CommandGroupRegister): SlashCommand[] {
+  generate(groups: ReadOnlyCommandGroupRegister): SlashCommand[] {
     const slashCommands: SlashCommand[] = [];
     for (const group of Object.values(groups)) {
       for (const command of Object.values(group.commands)) {
@@ -203,7 +205,7 @@ export const SlashCommandGenerator = {
   },
 
   getCommandParameterOptions(
-    parameters: (InteractionAttribute | InteractionParameter)[],
+    parameters: readonly (InteractionAttribute | InteractionParameter)[],
   ): CommandParameterOption[] {
     const parameterOptions: CommandParameterOption[] = [];
     for (const parameter of parameters) {

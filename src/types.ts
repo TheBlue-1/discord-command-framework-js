@@ -11,3 +11,13 @@ export type CustomUnknown =
   | (() => void)
   | null
   | undefined;
+
+export type DeepReadonly<T> = T extends () => void
+  ? T
+  : T extends object
+  ? Readonly<{
+      [P in keyof T]: DeepReadonly<T[P]>;
+    }>
+  : T;
+
+type o = Readonly<() => void>;

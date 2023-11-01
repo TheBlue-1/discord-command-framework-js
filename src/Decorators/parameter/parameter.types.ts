@@ -5,29 +5,42 @@ import type {
 } from "../../slash-command-generator";
 
 export class InteractionParameter {
-  public methodParameterType = "parameter" as const;
+  public readonly methodParameterType = "parameter" as const;
+
+  public readonly options: {
+    readonly optional?: boolean;
+    readonly defaultValue?: unknown;
+    readonly channelTypes?: readonly ChannelType[] | undefined;
+    readonly choices?: readonly CommandChoice<number | string>[];
+    readonly minValue?: number | undefined;
+    readonly maxValue?: number | undefined;
+    readonly autocompletions?: readonly (number | string)[];
+  };
 
   public constructor(
-    public name: string,
-    public description: string,
-    public type: CommandOptionParameterType,
-    public options: {
-      optional?: boolean;
-      defaultValue?: unknown;
-      channelTypes?: ChannelType[] | undefined;
-      choices?: CommandChoice<number | string>[];
-      minValue?: number | undefined;
-      maxValue?: number | undefined;
-      autocompletions?: (number | string)[];
+    public readonly name: string,
+    public readonly description: string,
+    public readonly type: CommandOptionParameterType,
+    options: {
+      readonly optional?: boolean;
+      readonly defaultValue?: unknown;
+      readonly channelTypes?: readonly ChannelType[] | undefined;
+      readonly choices?: readonly CommandChoice<number | string>[];
+      readonly minValue?: number | undefined;
+      readonly maxValue?: number | undefined;
+      readonly autocompletions?: readonly (number | string)[];
     },
   ) {
-    if (options.defaultValue !== undefined) options.optional = true;
+    this.options = {
+      ...options,
+      optional: options.defaultValue !== undefined || options.optional,
+    };
   }
 }
 export class InteractionAttribute {
-  public methodParameterType = "attribute" as const;
+  public readonly methodParameterType = "attribute" as const;
 
-  public constructor(public name: AttributeName) {}
+  public constructor(public readonly name: AttributeName) {}
 }
 
 export type AttributeName = keyof {

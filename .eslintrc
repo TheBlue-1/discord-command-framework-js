@@ -236,6 +236,7 @@
         "@typescript-eslint/prefer-nullish-coalescing": "error",
         "@typescript-eslint/prefer-optional-chain": "error",
         "@typescript-eslint/prefer-readonly": "error",
+        "@typescript-eslint/prefer-readonly-parameter-types": "error",
         "@typescript-eslint/prefer-string-starts-ends-with": "error",
         "@typescript-eslint/require-array-sort-compare": "error",
         // the ts version allows to just return a promise in an async function. Thats why we use the non ts version.

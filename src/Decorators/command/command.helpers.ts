@@ -8,6 +8,10 @@ import type {
 } from "./command.types";
 
 export type CommandGroupRegister = Record<string, CommandGroupInfo>;
+export type ReadOnlyCommandGroupRegister = Readonly<
+  Record<string, Readonly<CommandGroupInfo>>
+>;
+
 export const rawCommandGroupRegister: CommandGroupRegister = {};
 export const commandRegister: Record<string, Record<string, CommandInfo>> = {};
 export const commandAreaRegister: Record<
@@ -67,8 +71,8 @@ export const subCommandGroupRegister: Record<
 export const targetInstanceMap: Record<string, unknown> = {};
 
 export function setParentForChildren(
-  parent: Configurable,
-  children: Record<string, Configurable>,
+  parent: Readonly<Configurable>,
+  children: Readonly<Record<string, Readonly<Configurable>>>,
 ) {
   for (const child of Object.values(children)) {
     child.setParent(parent);
