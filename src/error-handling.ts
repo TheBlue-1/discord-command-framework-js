@@ -155,9 +155,10 @@ export function errorHandler(error: unknown, args?: readonly unknown[]) {
 
 export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   public constructor(
-    observerOrNext?: Readonly<
-      Partial<Observer<T>> | ((value: T) => Promise<void> | void)
-    > | null,
+    observerOrNext?:
+      | Readonly<Partial<Observer<T>>>
+      | ((value: T) => Promise<void> | void)
+      | null,
     error?: ((error: unknown) => Promise<void> | void) | null,
     complete?: (() => Promise<void> | void) | null,
   ) {
@@ -224,11 +225,11 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
   }
 
   public override subscribe(
-    observerOrNext?: Readonly<
-      | Partial<Observer<T>>
+    observerOrNext?:
+      | Readonly<Partial<Observer<T>>>
       | ((value: T) => Promise<void>)
       | ((value: T) => void)
-    > | null,
+      | null,
     error?: ((error: unknown) => Promise<void> | void) | null,
     complete?: (() => Promise<void> | void) | null,
   ): Subscription {

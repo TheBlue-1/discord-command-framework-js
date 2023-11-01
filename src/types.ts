@@ -12,12 +12,11 @@ export type CustomUnknown =
   | null
   | undefined;
 
-export type DeepReadonly<T> = T extends () => void
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types, @typescript-eslint/no-explicit-any
+export type DeepReadonly<T> = T extends (...args: any[]) => void
   ? T
   : T extends object
   ? Readonly<{
       [P in keyof T]: DeepReadonly<T[P]>;
     }>
   : T;
-
-type o = Readonly<() => void>;
