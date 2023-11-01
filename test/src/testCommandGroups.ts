@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/class-methods-use-this */
 import {
+  Author,
   ChannelParam,
   ChannelType,
   Choice,
   Command,
   CommandArea,
+  CommandChannel,
   CommandGroup,
   Minmax,
   Param,
   SubCommand,
   SubCommandGroup,
-  User,
 } from "../../src";
 
 @CommandGroup("tcg1")
 export class TestModule1 {
   @Command("tc1", "first command")
   public testCommand1(
-    @Channel() _c: unknown,
+    @CommandChannel() _c: unknown,
     @Param("p1", "first param", "STRING", true) _s: string,
   ) {
     return "success";
@@ -27,7 +28,7 @@ export class TestModule1 {
 export class TestCommandArea1 {
   @SubCommand("tsc1", "first subcommand")
   public testSubCommand1(
-    @User() _u: unknown,
+    @Author() _u: unknown,
     @Param("p2", "second param", "NUMBER") _n: number,
   ) {
     return "success";

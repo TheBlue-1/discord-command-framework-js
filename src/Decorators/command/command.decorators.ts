@@ -2,9 +2,9 @@ import { classDecorator, methodDecorator } from "../helpers";
 import { parameterRegister } from "../parameter/parameter.helpers";
 import {
   commandAreaRegister,
+  commandGroupRegister,
   commandRegister,
   flatCommandAreaRegister,
-  rawCommandGroupRegister,
   setParentForChildren,
   subCommandGroupRegister,
   subCommandRegister,
@@ -87,7 +87,7 @@ export function CommandGroup(name: string, options: CommandOptions = {}) {
       command,
       commandArea,
     );
-    rawCommandGroupRegister[name] = commandGroup;
+    commandGroupRegister[name] = commandGroup;
     setParentForChildren(commandGroup, commandGroup.commands);
     setParentForChildren(commandGroup, commandGroup.commandAreas);
   });
@@ -152,7 +152,7 @@ export function CommandArea(
     commandArea[name] = commandAreaInfo;
     setParentForChildren(commandAreaInfo, commandAreaInfo.subCommandGroups);
     setParentForChildren(commandAreaInfo, commandAreaInfo.subCommands);
-    const parent = rawCommandGroupRegister[commandGroup.name];
+    const parent = commandGroupRegister[commandGroup.name];
     if (parent) {
       commandAreaInfo.setParent(parent);
     }

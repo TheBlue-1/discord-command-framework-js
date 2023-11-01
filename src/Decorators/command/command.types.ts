@@ -13,11 +13,12 @@ export function mergeOptions(
   parent: CommandOptions,
   child: CommandOptions,
 ): CommandOptions {
-  const options: CommandOptions = {};
-  options.access = child.access ?? parent.access ?? "Everyone";
-  options.neededPermissions = (parent.neededPermissions ?? []).concat(
-    ...(child.neededPermissions ?? []),
-  );
+  const options: CommandOptions = {
+    access: child.access ?? parent.access ?? "Everyone",
+    neededPermissions: (parent.neededPermissions ?? []).concat(
+      ...(child.neededPermissions ?? []),
+    ),
+  };
   return options;
 }
 
@@ -92,6 +93,16 @@ export class CommandAreaInfo extends DescribedConfigurable {
   ) {
     super(name, description, options);
   }
+
+  public clone(): CommandAreaInfo {
+    return new CommandAreaInfo(
+      this.name,
+      this.description,
+      this.options,
+      {},
+      {},
+    );
+  }
 }
 
 export class SubCommandInfo extends CallableCommandInfo {
@@ -118,6 +129,10 @@ export class SubCommandGroupInfo extends DescribedConfigurable {
   ) {
     super(name, description, options);
   }
+
+  public clone(): SubCommandGroupInfo {
+    return new SubCommandGroupInfo(this.name, this.description, this.options);
+  }
 }
 export class CommandGroupInfo extends Configurable {
   public constructor(
@@ -129,6 +144,10 @@ export class CommandGroupInfo extends Configurable {
     >,
   ) {
     super(name, options);
+  }
+
+  public clone(): CommandGroupInfo {
+    return new CommandGroupInfo(this.name, this.options, {}, {});
   }
 }
 export type AccessLevel = "BotAdmin" | "Everyone" | "GuildAdmin";

@@ -8,10 +8,7 @@ import {
 } from "discord.js";
 import deepEquals from "fast-deep-equal";
 import { Observable, map, takeWhile, type Subscriber } from "rxjs";
-import {
-  commandGroupRegister,
-  type CommandGroupRegister,
-} from "./Decorators/command/command.helpers";
+import { commandGroupRegister } from "./Decorators/command/command.helpers";
 import {
   handleObservableErrors,
   type ErrorHandlingObservable,
@@ -21,12 +18,10 @@ import {
   SlashCommandGenerator,
   type SlashCommand,
 } from "./slash-command-generator";
-import type { DeepReadonly } from "./types";
 
 export class Bot {
   protected data:
     | {
-        commandGroups: CommandGroupRegister;
         commandInteraction$: Observable<CommandInteraction>;
         createdInteraction$: Observable<Interaction>;
         autocompleteParameter$: Observable<AutocompleteInteraction>;
@@ -43,7 +38,8 @@ export class Bot {
 
   public constructor(
     private readonly token: string,
-    options: DeepReadonly<ClientOptions> = { intents: [] },
+    // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- discord wants a mutable object
+    options: ClientOptions = { intents: [] },
   ) {
     this._client = new Client(options);
   }
@@ -74,16 +70,18 @@ export class Bot {
 
   public async start(): Promise<void> {
     console.log("bot starting");
-    const commandGroups = commandGroupRegister();
 
-    const commands = SlashCommandGenerator.generate(commandGroups);
+    const commands = SlashCommandGenerator.generate(commandGroupRegister);
 
     const createdInteraction$ = this.listenTo("interactionCreate");
     const commandInteraction$ = createdInteraction$.pipe(
       takeWhile((i) => i.isCommand()),
       map((i) => i as CommandInteraction),
     );
-    const interpreter = new Interpreter(commandInteraction$, commandGroups);
+    const interpreter = new Interpreter(
+      commandInteraction$,
+      commandGroupRegister,
+    );
 
     const autocompleteParameter$ = createdInteraction$.pipe(
       takeWhile((i) => i.isAutocomplete()),
@@ -105,7 +103,6 @@ export class Bot {
     );
 
     this.data = {
-      commandGroups,
       commandInteraction$,
       createdInteraction$,
       autocompleteParameter$,
