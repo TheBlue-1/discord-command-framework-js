@@ -1,4 +1,7 @@
-import type { ChannelType, CommandInteraction } from "discord.js";
+import type {
+  ApplicationCommandOptionAllowedChannelTypes,
+  CommandInteraction,
+} from "discord.js";
 import type {
   CommandChoice,
   CommandOptionParameterType,
@@ -10,7 +13,9 @@ export class InteractionParameter {
   public readonly options: {
     readonly optional?: boolean;
     readonly defaultValue?: unknown;
-    readonly channelTypes?: readonly ChannelType[] | undefined;
+    readonly channelTypes?:
+      | readonly ApplicationCommandOptionAllowedChannelTypes[]
+      | undefined;
     readonly choices?: readonly CommandChoice<number | string>[];
     readonly minValue?: number | undefined;
     readonly maxValue?: number | undefined;
@@ -24,7 +29,9 @@ export class InteractionParameter {
     options: {
       readonly optional?: boolean;
       readonly defaultValue?: unknown;
-      readonly channelTypes?: readonly ChannelType[] | undefined;
+      readonly channelTypes?:
+        | readonly ApplicationCommandOptionAllowedChannelTypes[]
+        | undefined;
       readonly choices?: readonly CommandChoice<number | string>[];
       readonly minValue?: number | undefined;
       readonly maxValue?: number | undefined;

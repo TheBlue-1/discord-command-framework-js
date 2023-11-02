@@ -1,6 +1,6 @@
 import {
   ApplicationCommandOptionType,
-  type ChannelType,
+  type ApplicationCommandOptionAllowedChannelTypes,
   type CommandOptionChoiceResolvableType,
   type CommandOptionNumericResolvableType,
 } from "discord.js";
@@ -98,7 +98,7 @@ export function Minmax(
 export function ChannelParam(
   name: string,
   description = "",
-  channelTypes?: readonly ChannelType[],
+  channelTypes?: readonly ApplicationCommandOptionAllowedChannelTypes[],
   defaultValue?: unknown,
 ) {
   return paramDecorator((target, propertyKey, index) => {

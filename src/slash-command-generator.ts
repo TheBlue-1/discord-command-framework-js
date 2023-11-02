@@ -1,18 +1,15 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
-  type ApplicationCommandAutocompleteStringOption,
   type ApplicationCommandChannelOptionData,
-  type ApplicationCommandChoicesData,
   type ApplicationCommandNonOptionsData,
   type ApplicationCommandNumericOptionData,
+  type ApplicationCommandOptionAllowedChannelTypes,
   type ApplicationCommandOptionChoiceData,
   type ApplicationCommandSubCommandData,
   type ApplicationCommandSubGroupData,
-  type ChannelType,
   type ChatInputApplicationCommandData,
   type CommandOptionChannelResolvableType,
-  type CommandOptionChoiceResolvableType,
   type CommandOptionDataTypeResolvable,
   type CommandOptionNonChoiceResolvableType,
   type CommandOptionNumericResolvableType,
@@ -57,12 +54,14 @@ export class SubCommandOption implements ApplicationCommandSubCommandData {
 
 export type CommandParameterOption =
   | CommandChannelOption
-  | CommandChoiceOption
+  | CommandChoiceOption<number>
+  | CommandChoiceOption<string>
   | CommandMinMaxOption
   | CommandSimpleOption;
 export type SubCommandOptions = SubCommandGroupOption | SubCommandOption;
 export type CommandSimpleOption =
-  | CommandAutocompleteOption
+  | CommandAutocompleteOption<number>
+  | CommandAutocompleteOption<string>
   | CommandNoOptionsOption;
 
 export class CommandNoOptionsOption
@@ -76,13 +75,13 @@ export class CommandNoOptionsOption
   ) {}
 }
 
-export class CommandAutocompleteOption
-  implements ApplicationCommandAutocompleteStringOption
-{
+export class CommandAutocompleteOption<T extends number | string> {
   public readonly autocomplete = true as const;
 
   public constructor(
-    public readonly type: ApplicationCommandOptionType.String,
+    public readonly type: T extends string
+      ? ApplicationCommandOptionType.String
+      : CommandOptionNumericResolvableType,
     public readonly name: string,
     public readonly description: string,
     public readonly required: boolean,
@@ -98,16 +97,20 @@ export class CommandChannelOption
     public readonly name: string,
     public readonly description: string,
     public readonly required: boolean,
-    public readonly channelTypes: readonly ChannelType[] | undefined,
+    public readonly channelTypes:
+      | readonly ApplicationCommandOptionAllowedChannelTypes[]
+      | undefined,
   ) {}
 }
 
-export class CommandChoiceOption implements ApplicationCommandChoicesData {
+export class CommandChoiceOption<T extends number | string> {
   public constructor(
-    public readonly type: CommandOptionChoiceResolvableType,
+    public readonly type: T extends string
+      ? ApplicationCommandOptionType.String
+      : CommandOptionNumericResolvableType,
     public readonly name: string,
     public readonly description: string,
-    public readonly choices: readonly CommandChoice<number | string>[],
+    public readonly choices: readonly CommandChoice<T>[],
     public readonly required: boolean,
   ) {}
 }
@@ -252,11 +255,11 @@ export const SlashCommandGenerator = {
             break;
           }
           if (parameter.options.choices !== undefined) {
-            options = new CommandChoiceOption(
+            options = new CommandChoiceOption<number>(
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices,
+              parameter.options.choices as readonly CommandChoice<number>[], // TODO better typing
               !(parameter.options.optional ?? false),
             );
             break;
@@ -270,11 +273,11 @@ export const SlashCommandGenerator = {
           break;
         case ApplicationCommandOptionType.String:
           if (parameter.options.choices !== undefined) {
-            options = new CommandChoiceOption(
+            options = new CommandChoiceOption<string>(
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices,
+              parameter.options.choices as readonly CommandChoice<string>[], // TODO better typing
               !(parameter.options.optional ?? false),
             );
             break;
@@ -286,6 +289,11 @@ export const SlashCommandGenerator = {
             !(parameter.options.optional ?? false),
           );
           break;
+        case ApplicationCommandOptionType.Attachment: {
+          throw new Error(
+            "Not implemented yet: ApplicationCommandOptionType.Attachment case",
+          );
+        } // TODO implement
       }
 
       parameterOptions.push(options);
