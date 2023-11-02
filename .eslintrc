@@ -40,7 +40,7 @@
         "no-array-constructor": "error",
         "no-await-in-loop": "error",
         "no-case-declarations": "error",
-        "no-console": "off", // turn on if we use a logger
+        "no-console": "error",
         "no-constant-binary-expression": "error",
         "no-constructor-return": "error",
         "no-duplicate-imports": "error",

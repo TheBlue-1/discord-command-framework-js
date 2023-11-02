@@ -16,6 +16,7 @@ import {
   type ErrorHandlingObservable,
 } from "./error-handling";
 import { Interpreter } from "./interpreter";
+import { logger } from "./logger";
 import {
   SlashCommandGenerator,
   type SlashCommand,
@@ -79,7 +80,7 @@ export class Bot {
   }
 
   public async start(): Promise<void> {
-    console.log("bot starting");
+    logger.log("bot starting");
 
     const commands = SlashCommandGenerator.generate(commandGroupRegister);
 
@@ -105,10 +106,10 @@ export class Bot {
 
     await this._client.login(this.token);
     await onReady;
-    console.log("bot online");
+    logger.log("bot online");
 
     const registerInfo = await this.registerCommands(commands);
-    console.log(
+    logger.log(
       `${registerInfo.count} commands registered (${registerInfo.created} created, ${registerInfo.edited} edited, ${registerInfo.removed} removed)`,
     );
 

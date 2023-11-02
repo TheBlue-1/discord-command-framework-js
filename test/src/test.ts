@@ -1,4 +1,5 @@
 import { Bot, initGlobalErrorHandlers } from "discord-command-framework-js";
+import { logger } from "../../src/logger";
 import "./testCommandGroups";
 
 const LocalConfigPath = "./local.config.json";
@@ -31,5 +32,5 @@ async function start() {
   await bot.start();
 }
 start().catch((err) => {
-  console.error(err);
+  logger.error(err);
 });
