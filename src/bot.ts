@@ -1,17 +1,16 @@
 import {
   Client,
+  type ApplicationCommand,
   type AutocompleteInteraction,
+  type ChatInputCommandInteraction,
   type ClientEvents,
   type ClientOptions,
-  type CommandInteraction,
+  type GuildResolvable,
   type Interaction,
 } from "discord.js";
 import deepEquals from "fast-deep-equal";
-import { Observable, map, takeWhile } from "rxjs";
-import {
-  commandGroupRegister,
-  type CommandGroupRegister,
-} from "./Decorators/command/command.helpers";
+import { Observable, map, takeWhile, type Subscriber } from "rxjs";
+import { commandGroupRegister } from "./Decorators/command/command.helpers";
 import {
   handleObservableErrors,
   type ErrorHandlingObservable,
@@ -21,14 +20,21 @@ import {
   SlashCommandGenerator,
   type SlashCommand,
 } from "./slash-command-generator";
+import type { DeepReadonly } from "./types";
 
+type ReadonlyApplicationCommand = DeepReadonly<
+  ApplicationCommand<{
+    guild: GuildResolvable;
+  }>
+>;
 export class Bot {
   protected data:
     | {
-        commandGroups: CommandGroupRegister;
-        commandInteraction$: Observable<CommandInteraction>;
-        createdInteraction$: Observable<Interaction>;
-        autocompleteParameter$: Observable<AutocompleteInteraction>;
+        commandInteraction$: ErrorHandlingObservable<
+          DeepReadonly<ChatInputCommandInteraction>
+        >;
+        createdInteraction$: ErrorHandlingObservable<Interaction>;
+        autocompleteParameter$: ErrorHandlingObservable<AutocompleteInteraction>;
         interpreter: Interpreter;
       }
     | undefined = undefined;
@@ -42,6 +48,7 @@ export class Bot {
 
   public constructor(
     private readonly token: string,
+    // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- discord wants a mutable object
     options: ClientOptions = { intents: [] },
   ) {
     this._client = new Client(options);
@@ -58,7 +65,9 @@ export class Bot {
     event: T,
   ): ErrorHandlingObservable<ClientEvents[T] | ClientEvents[T][0]> {
     const observable = new Observable<ClientEvents[T] | ClientEvents[T][0]>(
-      (subscriber) => {
+      (
+        subscriber: Readonly<Subscriber<ClientEvents[T] | ClientEvents[T][0]>>,
+      ) => {
         this._client.on(event, (...params: ClientEvents[T]) => {
           if (params.length === 1) {
             subscriber.next(params[0]);
@@ -71,20 +80,22 @@ export class Bot {
 
   public async start(): Promise<void> {
     console.log("bot starting");
-    const commandGroups = commandGroupRegister();
 
-    const commands = SlashCommandGenerator.generate(commandGroups);
+    const commands = SlashCommandGenerator.generate(commandGroupRegister);
 
     const createdInteraction$ = this.listenTo("interactionCreate");
     const commandInteraction$ = createdInteraction$.pipe(
-      takeWhile((i) => i.isCommand()),
-      map((i) => i as CommandInteraction),
+      takeWhile((i: DeepReadonly<Interaction>) => i.isChatInputCommand()),
+      map((i) => i as DeepReadonly<ChatInputCommandInteraction>),
     );
-    const interpreter = new Interpreter(commandInteraction$, commandGroups);
+    const interpreter = new Interpreter(
+      commandInteraction$,
+      commandGroupRegister,
+    );
 
     const autocompleteParameter$ = createdInteraction$.pipe(
       takeWhile((i) => i.isAutocomplete()),
-      map((i) => i as AutocompleteInteraction),
+      map((i) => i as DeepReadonly<AutocompleteInteraction>),
     );
 
     const onReady = new Promise((resolve, reject) => {
@@ -102,7 +113,6 @@ export class Bot {
     );
 
     this.data = {
-      commandGroups,
       commandInteraction$,
       createdInteraction$,
       autocompleteParameter$,
@@ -110,24 +120,26 @@ export class Bot {
     };
   }
 
-  private async registerCommands(commands: SlashCommand[]) {
-    const oldCommands = (await this.client.application.commands.fetch()).map(
-      (c) => c,
-    );
+  private async registerCommands(commands: readonly SlashCommand[]) {
+    const oldCommands = [
+      ...(await this.client.application.commands.fetch()).values(),
+    ];
 
     const created: Promise<unknown>[] = [];
     const edited: Promise<unknown>[] = [];
     const removed: Promise<unknown>[] = [];
 
     for (const command of commands) {
-      const oldIndex = oldCommands.findIndex((c) => c.name === command.name);
+      const oldIndex = oldCommands.findIndex(
+        (c: ReadonlyApplicationCommand) => c.name === command.name,
+      );
       if (oldIndex === -1) {
         created.push(this.client.application.commands.create(command));
         continue;
       }
       const [oldCommand] = oldCommands.splice(oldIndex, 1);
       if (!oldCommand) throw new Error("impossible case reached");
-      // TODO make sure oldCommand also has type as enum value
+
       if (deepEquals(command, oldCommand)) {
         continue;
       }

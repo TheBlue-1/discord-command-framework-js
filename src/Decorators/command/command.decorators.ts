@@ -2,9 +2,9 @@ import { classDecorator, methodDecorator } from "../helpers";
 import { parameterRegister } from "../parameter/parameter.helpers";
 import {
   commandAreaRegister,
+  commandGroupRegister,
   commandRegister,
   flatCommandAreaRegister,
-  rawCommandGroupRegister,
   setParentForChildren,
   subCommandGroupRegister,
   subCommandRegister,
@@ -25,9 +25,9 @@ export function Command(
   options: CommandOptions = {},
 ) {
   return methodDecorator((target, propertyKey) => {
-    const command = commandRegister[target.constructor.name] ?? {};
+    const commands = commandRegister[target.constructor.name] ?? {};
     if (commandRegister[target.constructor.name] === undefined) {
-      commandRegister[target.constructor.name] = command;
+      commandRegister[target.constructor.name] = commands;
     }
     const targetInstance =
       targetInstanceMap[target.constructor.name] ?? new target.constructor();
@@ -35,7 +35,7 @@ export function Command(
       targetInstanceMap[target.constructor.name] = targetInstance;
     }
 
-    command[propertyKey] = new CommandInfo(
+    commands[name] = new CommandInfo(
       name,
       description,
       target[propertyKey],
@@ -54,11 +54,11 @@ export function SubCommand(
     if (targetInstanceMap[target.constructor.name] === undefined) {
       targetInstanceMap[target.constructor.name] = new target.constructor();
     }
-    const subCommand = subCommandRegister[target.constructor.name] ?? {};
+    const subCommands = subCommandRegister[target.constructor.name] ?? {};
     if (subCommandRegister[target.constructor.name] === undefined) {
-      subCommandRegister[target.constructor.name] = subCommand;
+      subCommandRegister[target.constructor.name] = subCommands;
     }
-    subCommand[name] = new SubCommandInfo(
+    subCommands[name] = new SubCommandInfo(
       name,
       description,
       target[propertyKey],
@@ -71,23 +71,23 @@ export function SubCommand(
 
 export function CommandGroup(name: string, options: CommandOptions = {}) {
   return classDecorator((target) => {
-    const command = commandRegister[target.name] ?? {};
+    const commands = commandRegister[target.name] ?? {};
     if (commandRegister[target.name] === undefined) {
-      commandRegister[target.name] = command;
+      commandRegister[target.name] = commands;
     }
 
-    const commandArea = commandAreaRegister[target.name] ?? {};
+    const commandAreas = commandAreaRegister[target.name] ?? {};
     if (commandAreaRegister[target.name] === undefined) {
-      commandAreaRegister[target.name] = commandArea;
+      commandAreaRegister[target.name] = commandAreas;
     }
 
     const commandGroup = new CommandGroupInfo(
       name,
       options,
-      command,
-      commandArea,
+      commands,
+      commandAreas,
     );
-    rawCommandGroupRegister[name] = commandGroup;
+    commandGroupRegister[name] = commandGroup;
     setParentForChildren(commandGroup, commandGroup.commands);
     setParentForChildren(commandGroup, commandGroup.commandAreas);
   });
@@ -99,9 +99,9 @@ export function SubCommandGroup(
   options: CommandOptions = {},
 ) {
   return classDecorator((target) => {
-    const subCommandGroup = subCommandGroupRegister[commandArea.name] ?? {};
+    const subCommandGroups = subCommandGroupRegister[commandArea.name] ?? {};
     if (subCommandGroupRegister[commandArea.name] === undefined) {
-      subCommandGroupRegister[commandArea.name] = subCommandGroup;
+      subCommandGroupRegister[commandArea.name] = subCommandGroups;
     }
 
     if (subCommandRegister[target.name] === undefined) {
@@ -113,7 +113,7 @@ export function SubCommandGroup(
       options,
       subCommandRegister[target.name],
     );
-    subCommandGroup[name] = subCommandGroupInfo;
+    subCommandGroups[name] = subCommandGroupInfo;
     setParentForChildren(subCommandGroupInfo, subCommandGroupInfo.subCommands);
     const parent = flatCommandAreaRegister()[commandArea.name];
     if (parent) {
@@ -129,30 +129,30 @@ export function CommandArea(
   options: CommandOptions = {},
 ) {
   return classDecorator((target) => {
-    const commandArea = commandAreaRegister[commandGroup.name] ?? {};
+    const commandAreas = commandAreaRegister[commandGroup.name] ?? {};
     if (commandAreaRegister[commandGroup.name] === undefined) {
-      commandAreaRegister[commandGroup.name] = commandArea;
+      commandAreaRegister[commandGroup.name] = commandAreas;
     }
-    const subCommandGroup = subCommandGroupRegister[target.name] ?? {};
+    const subCommandGroups = subCommandGroupRegister[target.name] ?? {};
     if (subCommandGroupRegister[target.name] === undefined) {
-      subCommandGroupRegister[target.name] = subCommandGroup;
+      subCommandGroupRegister[target.name] = subCommandGroups;
     }
-    const subCommand = subCommandRegister[target.name] ?? {};
+    const subCommands = subCommandRegister[target.name] ?? {};
     if (subCommandRegister[target.name] === undefined) {
-      subCommandRegister[target.name] = subCommand;
+      subCommandRegister[target.name] = subCommands;
     }
 
     const commandAreaInfo = new CommandAreaInfo(
       name,
       description,
       options,
-      subCommand,
-      subCommandGroup,
+      subCommands,
+      subCommandGroups,
     );
-    commandArea[name] = commandAreaInfo;
+    commandAreas[name] = commandAreaInfo;
     setParentForChildren(commandAreaInfo, commandAreaInfo.subCommandGroups);
     setParentForChildren(commandAreaInfo, commandAreaInfo.subCommands);
-    const parent = rawCommandGroupRegister[commandGroup.name];
+    const parent = commandGroupRegister[commandGroup.name];
     if (parent) {
       commandAreaInfo.setParent(parent);
     }

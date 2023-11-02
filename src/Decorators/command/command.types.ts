@@ -1,4 +1,4 @@
-import type { PermissionString } from "discord.js";
+import type { PermissionsString } from "discord.js";
 import type { CustomUnknown } from "../../types";
 import type {
   InteractionAttribute,
@@ -6,27 +6,28 @@ import type {
 } from "../parameter/parameter.types";
 
 export interface CommandOptions {
-  access?: AccessLevel;
-  neededPermissions?: PermissionString[];
+  readonly access?: AccessLevel;
+  readonly neededPermissions?: readonly PermissionsString[];
 }
 export function mergeOptions(
   parent: CommandOptions,
   child: CommandOptions,
 ): CommandOptions {
-  const options: CommandOptions = {};
-  options.access = child.access ?? parent.access ?? "Everyone";
-  options.neededPermissions = (parent.neededPermissions ?? []).concat(
-    ...(child.neededPermissions ?? []),
-  );
+  const options: CommandOptions = {
+    access: child.access ?? parent.access ?? "Everyone",
+    neededPermissions: (parent.neededPermissions ?? []).concat(
+      ...(child.neededPermissions ?? []),
+    ),
+  };
   return options;
 }
 
 export abstract class Configurable {
-  protected parent?: Configurable;
+  protected parent?: Readonly<Configurable>;
 
   public constructor(
-    public name: string,
-    protected options: CommandOptions,
+    public readonly name: string,
+    protected readonly options: CommandOptions,
   ) {}
 
   public getOptions(): CommandOptions {
@@ -35,14 +36,14 @@ export abstract class Configurable {
       : this.options;
   }
 
-  public setParent(parent: Configurable) {
+  public setParent(parent: Readonly<Configurable>) {
     this.parent = parent;
   }
 }
 export abstract class DescribedConfigurable extends Configurable {
   public constructor(
     name: string,
-    public description: string,
+    public readonly description: string,
     options: CommandOptions,
   ) {
     super(name, options);
@@ -53,10 +54,13 @@ export abstract class CallableCommandInfo extends DescribedConfigurable {
     name: string,
     description: string,
 
-    public callable: () => CustomUnknown | Promise<CustomUnknown>,
-    public parentInstance: unknown,
+    public readonly callable: () => CustomUnknown | Promise<CustomUnknown>,
+    public readonly parentInstance: unknown,
     options: CommandOptions,
-    public parameters: (InteractionAttribute | InteractionParameter)[],
+    public readonly parameters: readonly (
+      | InteractionAttribute
+      | InteractionParameter
+    )[],
   ) {
     super(name, description, options);
   }
@@ -69,7 +73,7 @@ export class CommandInfo extends CallableCommandInfo {
     callable: () => CustomUnknown | Promise<CustomUnknown>,
     parentInstance: unknown,
     options: CommandOptions,
-    parameters: (InteractionAttribute | InteractionParameter)[] = [],
+    parameters: readonly (InteractionAttribute | InteractionParameter)[] = [],
   ) {
     super(name, description, callable, parentInstance, options, parameters);
   }
@@ -80,10 +84,24 @@ export class CommandAreaInfo extends DescribedConfigurable {
     name: string,
     description: string,
     options: CommandOptions,
-    public subCommands: Record<string, SubCommandInfo>,
-    public subCommandGroups: Record<string, SubCommandGroupInfo>,
+    public readonly subCommands: Readonly<
+      Record<string, Readonly<SubCommandInfo>>
+    >,
+    public readonly subCommandGroups: Readonly<
+      Record<string, Readonly<SubCommandGroupInfo>>
+    >,
   ) {
     super(name, description, options);
+  }
+
+  public clone(): CommandAreaInfo {
+    return new CommandAreaInfo(
+      this.name,
+      this.description,
+      this.options,
+      {},
+      {},
+    );
   }
 }
 
@@ -94,7 +112,7 @@ export class SubCommandInfo extends CallableCommandInfo {
     callable: () => CustomUnknown | Promise<CustomUnknown>,
     parentInstance: unknown,
     options: CommandOptions,
-    parameters: (InteractionAttribute | InteractionParameter)[] = [],
+    parameters: readonly (InteractionAttribute | InteractionParameter)[] = [],
   ) {
     super(name, description, callable, parentInstance, options, parameters);
   }
@@ -105,19 +123,31 @@ export class SubCommandGroupInfo extends DescribedConfigurable {
     name: string,
     description: string,
     options: CommandOptions,
-    public subCommands: Record<string, SubCommandInfo> = {},
+    public readonly subCommands: Readonly<
+      Record<string, Readonly<SubCommandInfo>>
+    > = {},
   ) {
     super(name, description, options);
+  }
+
+  public clone(): SubCommandGroupInfo {
+    return new SubCommandGroupInfo(this.name, this.description, this.options);
   }
 }
 export class CommandGroupInfo extends Configurable {
   public constructor(
     name: string,
     options: CommandOptions,
-    public commands: Record<string, CommandInfo>,
-    public commandAreas: Record<string, CommandAreaInfo>,
+    public readonly commands: Readonly<Record<string, Readonly<CommandInfo>>>,
+    public readonly commandAreas: Readonly<
+      Record<string, Readonly<CommandAreaInfo>>
+    >,
   ) {
     super(name, options);
+  }
+
+  public clone(): CommandGroupInfo {
+    return new CommandGroupInfo(this.name, this.options, {}, {});
   }
 }
 export type AccessLevel = "BotAdmin" | "Everyone" | "GuildAdmin";

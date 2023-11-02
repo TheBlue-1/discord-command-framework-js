@@ -1,4 +1,5 @@
 import { Bot, initGlobalErrorHandlers } from "discord-command-framework-js";
+import "./testCommandGroups";
 
 const LocalConfigPath = "./local.config.json";
 

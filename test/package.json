@@ -3,14 +3,8 @@
   "version": "1.0.0",
   "description": "tests",
   "main": "test.ts",
-  "scripts": {
-    "test": "nodemon --inspect ./src/test.ts"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.15",
-    "ts-node": "^10.7.0",
-    "typescript": "^5.2.2"
-  },
+  "scripts": {},
+  "devDependencies": {},
   "dependencies": {
     "discord-command-framework-js": "link:.."
   }

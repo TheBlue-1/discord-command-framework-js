@@ -1,20 +1,21 @@
 import type { CommandInteraction } from "discord.js";
 import { Observable, type Observer, type Subscription } from "rxjs";
-import { SafeSubscriber } from "rxjs/internal/Subscriber";
+import { SafeSubscriber, type Subscriber } from "rxjs/internal/Subscriber";
+import type { DeepReadonly } from "./types";
 
 // global error handling (before shutdown)
 
 type GlobalErrorHandler = (
   exitCode?: number,
   signal?: string,
-  exception?: Error,
+  exception?: Readonly<Error>,
   kill?: boolean,
 ) => boolean;
 
 export const globalDefaultHandler: GlobalErrorHandler = (
   exitCode?: number,
   signal?: string,
-  exception?: Error,
+  exception?: Readonly<Error>,
   kill?: boolean,
 ) => {
   console.log(
@@ -33,7 +34,7 @@ let currentGlobalErrorHandler: GlobalErrorHandler = globalDefaultHandler;
 function globalHandler(
   exitCode?: number,
   signal?: string,
-  exception?: Error,
+  exception?: Readonly<Error>,
   kill = true,
 ) {
   if (currentGlobalErrorHandler(exitCode, signal, exception, kill)) {
@@ -50,7 +51,7 @@ const globalHandlers = {
   SIGTERM: globalHandler.bind(undefined, undefined, "SIGTERM", undefined),
   SIGUSR1: globalHandler.bind(undefined, undefined, "SIGUSR1", undefined),
   SIGUSR2: globalHandler.bind(undefined, undefined, "SIGUSR2", undefined),
-  uncaughtException: (e: Error) =>
+  uncaughtException: (e: Readonly<Error>) =>
     globalHandler.bind(undefined, undefined, undefined, e, false)(),
   exit: (code: number, signal: string) =>
     globalHandler.bind(undefined, code, signal, undefined, false)(),
@@ -117,7 +118,7 @@ function isBotError(val: unknown): val is BotError {
   );
 }
 
-export function errorHandler(error: unknown, args?: unknown[]) {
+export function errorHandler(error: unknown, args?: readonly unknown[]) {
   let interaction: CommandInteraction | undefined = undefined;
   const arg0 = args?.[0];
   if (isCommandInteraction(arg0)) {
@@ -155,7 +156,7 @@ export function errorHandler(error: unknown, args?: unknown[]) {
 export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
   public constructor(
     observerOrNext?:
-      | Partial<Observer<T>>
+      | Readonly<Partial<Observer<T>>>
       | ((value: T) => Promise<void> | void)
       | null,
     error?: ((error: unknown) => Promise<void> | void) | null,
@@ -197,7 +198,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
 
   public static wrapForErrorHandling<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- generic function parameter
-    T extends (...args: any[]) => Promise<void> | void,
+    T extends (...args: readonly any[]) => Promise<void> | void,
   >(handler: T) {
     return (...args: Parameters<T>) => {
       try {
@@ -209,12 +210,12 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
     };
   }
 }
-export class ErrorHandlingObservable<T> extends Observable<T> {
+export class ErrorHandlingObservable<T> extends Observable<DeepReadonly<T>> {
   public static fromObservable<T>(
-    observable: Observable<T>,
+    observable: DeepReadonly<Observable<T>>,
   ): ErrorHandlingObservable<T> {
     const errorHandlingObservable = new ErrorHandlingObservable(
-      (subscriber) => {
+      (subscriber: Readonly<Subscriber<unknown>>) => {
         observable.subscribe((value) => {
           subscriber.next(value);
         });
@@ -225,9 +226,9 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
   public override subscribe(
     observerOrNext?:
-      | Partial<Observer<T>>
-      | ((value: T) => Promise<void>)
-      | ((value: T) => void)
+      | Readonly<Partial<Observer<DeepReadonly<T>>>>
+      | ((value: DeepReadonly<T>) => Promise<void>)
+      | ((value: DeepReadonly<T>) => void)
       | null,
     error?: ((error: unknown) => Promise<void> | void) | null,
     complete?: (() => Promise<void> | void) | null,
@@ -243,7 +244,7 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 }
 
 export function handleObservableErrors<T>(
-  observable: Observable<T>,
+  observable: DeepReadonly<Observable<T>>,
 ): ErrorHandlingObservable<T> {
   return ErrorHandlingObservable.fromObservable(observable);
 }

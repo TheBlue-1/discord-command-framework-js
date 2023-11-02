@@ -1,38 +1,53 @@
-import type { CommandInteraction, ExcludeEnum } from "discord.js";
-import type { ChannelTypes } from "discord.js/typings/enums";
-
-import {
-  commandOptionParameterTypeToEnum,
-  type CommandChoice,
-  type CommandOptionParameterType,
+import type {
+  ApplicationCommandOptionAllowedChannelTypes,
+  CommandInteraction,
+} from "discord.js";
+import type {
+  CommandChoice,
+  CommandOptionParameterType,
 } from "../../slash-command-generator";
 
 export class InteractionParameter {
-  public methodParameterType = "parameter" as const;
-  public type: Exclude<CommandOptionParameterType, string>;
+  public readonly methodParameterType = "parameter" as const;
+
+  public readonly options: {
+    readonly optional?: boolean;
+    readonly defaultValue?: unknown;
+    readonly channelTypes?:
+      | readonly ApplicationCommandOptionAllowedChannelTypes[]
+      | undefined;
+    readonly choices?: readonly CommandChoice<number | string>[];
+    readonly minValue?: number | undefined;
+    readonly maxValue?: number | undefined;
+    readonly autocompletions?: readonly (number | string)[];
+  };
 
   public constructor(
-    public name: string,
-    public description: string,
-    type: CommandOptionParameterType,
-    public options: {
-      optional?: boolean;
-      defaultValue?: unknown;
-      channelTypes?: ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[] | undefined;
-      choices?: CommandChoice<number | string>[];
-      minValue?: number | undefined;
-      maxValue?: number | undefined;
-      autocompletions?: (number | string)[];
+    public readonly name: string,
+    public readonly description: string,
+    public readonly type: CommandOptionParameterType,
+    options: {
+      readonly optional?: boolean;
+      readonly defaultValue?: unknown;
+      readonly channelTypes?:
+        | readonly ApplicationCommandOptionAllowedChannelTypes[]
+        | undefined;
+      readonly choices?: readonly CommandChoice<number | string>[];
+      readonly minValue?: number | undefined;
+      readonly maxValue?: number | undefined;
+      readonly autocompletions?: readonly (number | string)[];
     },
   ) {
-    this.type = commandOptionParameterTypeToEnum(type);
-    if (options.defaultValue !== undefined) options.optional = true;
+    this.options = {
+      ...options,
+      optional: options.defaultValue !== undefined || options.optional,
+    };
   }
 }
 export class InteractionAttribute {
-  public methodParameterType = "attribute" as const;
+  public readonly methodParameterType = "attribute" as const;
 
-  public constructor(public name: AttributeName) {}
+  public constructor(public readonly name: AttributeName) {}
 }
 
 export type AttributeName = keyof {

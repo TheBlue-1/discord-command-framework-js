@@ -1,99 +1,90 @@
-import type {
-  ApplicationCommandAutocompleteOption,
-  ApplicationCommandChannelOptionData,
-  ApplicationCommandChoicesData,
-  ApplicationCommandNonOptionsData,
-  ApplicationCommandNumericOptionData,
-  ApplicationCommandOptionChoice,
-  ApplicationCommandSubCommandData,
-  ApplicationCommandSubGroupData,
-  ChatInputApplicationCommandData,
-  CommandOptionChannelResolvableType,
-  CommandOptionChoiceResolvableType,
-  CommandOptionDataTypeResolvable,
-  CommandOptionNonChoiceResolvableType,
-  CommandOptionNumericResolvableType,
-  CommandOptionSubOptionResolvableType,
-  ExcludeEnum,
-} from "discord.js";
 import {
-  ApplicationCommandOptionTypes,
-  ApplicationCommandTypes,
-  type ChannelTypes,
-} from "discord.js/typings/enums";
-import type { CommandGroupRegister } from "./Decorators/command/command.helpers";
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  type ApplicationCommandChannelOptionData,
+  type ApplicationCommandNonOptionsData,
+  type ApplicationCommandNumericOptionData,
+  type ApplicationCommandOptionAllowedChannelTypes,
+  type ApplicationCommandOptionChoiceData,
+  type ApplicationCommandSubCommandData,
+  type ApplicationCommandSubGroupData,
+  type ChatInputApplicationCommandData,
+  type CommandOptionChannelResolvableType,
+  type CommandOptionDataTypeResolvable,
+  type CommandOptionNonChoiceResolvableType,
+  type CommandOptionNumericResolvableType,
+  type CommandOptionSubOptionResolvableType,
+} from "discord.js";
+import type { ReadOnlyCommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
   InteractionAttribute,
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
-import { unreachable } from "./utilities";
 
 export class SlashCommand implements ChatInputApplicationCommandData {
-  public type = ApplicationCommandTypes.CHAT_INPUT as const;
+  public readonly type = ApplicationCommandType.ChatInput as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: CommandParameterOption[] | SubCommandOptions[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options:
+      | readonly CommandParameterOption[]
+      | readonly SubCommandOptions[],
   ) {}
 }
 
 export class SubCommandGroupOption implements ApplicationCommandSubGroupData {
-  public type = ApplicationCommandOptionTypes.SUB_COMMAND_GROUP as const;
+  public readonly type = ApplicationCommandOptionType.SubcommandGroup as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: SubCommandOption[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options: readonly SubCommandOption[],
   ) {}
 }
 export class SubCommandOption implements ApplicationCommandSubCommandData {
-  public type = ApplicationCommandOptionTypes.SUB_COMMAND as const;
+  public readonly type = ApplicationCommandOptionType.Subcommand as const;
 
   public constructor(
-    public name: string,
-    public description: string,
-    public options: CommandParameterOption[],
+    public readonly name: string,
+    public readonly description: string,
+    public readonly options: readonly CommandParameterOption[],
   ) {}
 }
 
 export type CommandParameterOption =
   | CommandChannelOption
-  | CommandChoiceOption
+  | CommandChoiceOption<number>
+  | CommandChoiceOption<string>
   | CommandMinMaxOption
   | CommandSimpleOption;
 export type SubCommandOptions = SubCommandGroupOption | SubCommandOption;
 export type CommandSimpleOption =
-  | CommandAutocompleteOption
+  | CommandAutocompleteOption<number>
+  | CommandAutocompleteOption<string>
   | CommandNoOptionsOption;
 
 export class CommandNoOptionsOption
   implements ApplicationCommandNonOptionsData
 {
   public constructor(
-    public type: CommandOptionNonChoiceResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
+    public readonly type: CommandOptionNonChoiceResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
   ) {}
 }
 
-export class CommandAutocompleteOption
-  implements ApplicationCommandAutocompleteOption
-{
-  public autocomplete = true as const;
+export class CommandAutocompleteOption<T extends number | string> {
+  public readonly autocomplete = true as const;
 
   public constructor(
-    public type:
-      | ApplicationCommandOptionTypes.INTEGER
-      | ApplicationCommandOptionTypes.NUMBER
-      | ApplicationCommandOptionTypes.STRING
-      | "INTEGER"
-      | "NUMBER"
-      | "STRING",
-    public name: string,
-    public description: string,
-    public required: boolean,
+    public readonly type: T extends string
+      ? ApplicationCommandOptionType.String
+      : CommandOptionNumericResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
   ) {
     this.autocomplete = false as true; // TODO think of something
   }
@@ -102,84 +93,55 @@ export class CommandChannelOption
   implements ApplicationCommandChannelOptionData
 {
   public constructor(
-    public type: CommandOptionChannelResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
-    public channelTypes:
-      | ExcludeEnum<typeof ChannelTypes, "UNKNOWN">[]
+    public readonly type: CommandOptionChannelResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
+    public readonly channelTypes:
+      | readonly ApplicationCommandOptionAllowedChannelTypes[]
       | undefined,
   ) {}
 }
 
-export class CommandChoiceOption implements ApplicationCommandChoicesData {
+export class CommandChoiceOption<T extends number | string> {
   public constructor(
-    public type: CommandOptionChoiceResolvableType,
-    public name: string,
-    public description: string,
-    public choices: CommandChoice<number | string>[],
-    public required: boolean,
+    public readonly type: T extends string
+      ? ApplicationCommandOptionType.String
+      : CommandOptionNumericResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly choices: readonly CommandChoice<T>[],
+    public readonly required: boolean,
   ) {}
 }
 export class CommandMinMaxOption
   implements ApplicationCommandNumericOptionData
 {
   public constructor(
-    public type: CommandOptionNumericResolvableType,
-    public name: string,
-    public description: string,
-    public required: boolean,
-    public minValue: number | undefined,
-    public maxValue: number | undefined,
+    public readonly type: CommandOptionNumericResolvableType,
+    public readonly name: string,
+    public readonly description: string,
+    public readonly required: boolean,
+    public readonly minValue: number | undefined,
+    public readonly maxValue: number | undefined,
   ) {}
 }
 export class CommandChoice<T extends number | string>
-  implements ApplicationCommandOptionChoice
+  implements ApplicationCommandOptionChoiceData
 {
   public constructor(
-    public name: string,
-    public value: T,
+    public readonly name: string,
+    public readonly value: T,
   ) {}
 }
+
 export type CommandOptionParameterType = Exclude<
   CommandOptionDataTypeResolvable,
   CommandOptionSubOptionResolvableType
 >;
-export function commandOptionParameterTypeToEnum(
-  type: CommandOptionParameterType,
-): ApplicationCommandOptionTypes & CommandOptionParameterType {
-  switch (type) {
-    case "BOOLEAN":
-    case ApplicationCommandOptionTypes.BOOLEAN:
-      return ApplicationCommandOptionTypes.BOOLEAN;
-    case "USER":
-    case ApplicationCommandOptionTypes.USER:
-      return ApplicationCommandOptionTypes.USER;
-    case "ROLE":
-    case ApplicationCommandOptionTypes.ROLE:
-      return ApplicationCommandOptionTypes.ROLE;
-    case "MENTIONABLE":
-    case ApplicationCommandOptionTypes.MENTIONABLE:
-      return ApplicationCommandOptionTypes.MENTIONABLE;
-    case "CHANNEL":
-    case ApplicationCommandOptionTypes.CHANNEL:
-      return ApplicationCommandOptionTypes.CHANNEL;
-    case "INTEGER":
-    case ApplicationCommandOptionTypes.INTEGER:
-      return ApplicationCommandOptionTypes.INTEGER;
-    case "NUMBER":
-    case ApplicationCommandOptionTypes.NUMBER:
-      return ApplicationCommandOptionTypes.NUMBER;
-    case "STRING":
-    case ApplicationCommandOptionTypes.STRING:
-      return ApplicationCommandOptionTypes.STRING;
 
-    default:
-      return unreachable(type);
-  }
-}
 export const SlashCommandGenerator = {
-  generate(groups: CommandGroupRegister): SlashCommand[] {
+  generate(groups: ReadOnlyCommandGroupRegister): SlashCommand[] {
     const slashCommands: SlashCommand[] = [];
     for (const group of Object.values(groups)) {
       for (const command of Object.values(group.commands)) {
@@ -246,7 +208,7 @@ export const SlashCommandGenerator = {
   },
 
   getCommandParameterOptions(
-    parameters: (InteractionAttribute | InteractionParameter)[],
+    parameters: readonly (InteractionAttribute | InteractionParameter)[],
   ): CommandParameterOption[] {
     const parameterOptions: CommandParameterOption[] = [];
     for (const parameter of parameters) {
@@ -255,12 +217,11 @@ export const SlashCommandGenerator = {
       }
 
       let options: CommandParameterOption;
-      parameter.type = commandOptionParameterTypeToEnum(parameter.type);
       switch (parameter.type) {
-        case ApplicationCommandOptionTypes.BOOLEAN:
-        case ApplicationCommandOptionTypes.USER:
-        case ApplicationCommandOptionTypes.ROLE:
-        case ApplicationCommandOptionTypes.MENTIONABLE:
+        case ApplicationCommandOptionType.Boolean:
+        case ApplicationCommandOptionType.User:
+        case ApplicationCommandOptionType.Role:
+        case ApplicationCommandOptionType.Mentionable:
           options = new CommandNoOptionsOption(
             parameter.type,
             parameter.name,
@@ -268,7 +229,7 @@ export const SlashCommandGenerator = {
             !(parameter.options.optional ?? false),
           );
           break;
-        case ApplicationCommandOptionTypes.CHANNEL:
+        case ApplicationCommandOptionType.Channel:
           options = new CommandChannelOption(
             parameter.type,
             parameter.name,
@@ -277,8 +238,8 @@ export const SlashCommandGenerator = {
             parameter.options.channelTypes,
           );
           break;
-        case ApplicationCommandOptionTypes.INTEGER:
-        case ApplicationCommandOptionTypes.NUMBER:
+        case ApplicationCommandOptionType.Integer:
+        case ApplicationCommandOptionType.Number:
           if (
             parameter.options.minValue !== undefined ||
             parameter.options.maxValue !== undefined
@@ -294,11 +255,11 @@ export const SlashCommandGenerator = {
             break;
           }
           if (parameter.options.choices !== undefined) {
-            options = new CommandChoiceOption(
+            options = new CommandChoiceOption<number>(
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices,
+              parameter.options.choices as readonly CommandChoice<number>[], // TODO better typing
               !(parameter.options.optional ?? false),
             );
             break;
@@ -310,13 +271,13 @@ export const SlashCommandGenerator = {
             !(parameter.options.optional ?? false),
           );
           break;
-        case ApplicationCommandOptionTypes.STRING:
+        case ApplicationCommandOptionType.String:
           if (parameter.options.choices !== undefined) {
-            options = new CommandChoiceOption(
+            options = new CommandChoiceOption<string>(
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices,
+              parameter.options.choices as readonly CommandChoice<string>[], // TODO better typing
               !(parameter.options.optional ?? false),
             );
             break;
@@ -328,6 +289,11 @@ export const SlashCommandGenerator = {
             !(parameter.options.optional ?? false),
           );
           break;
+        case ApplicationCommandOptionType.Attachment: {
+          throw new Error(
+            "Not implemented yet: ApplicationCommandOptionType.Attachment case",
+          );
+        } // TODO implement
       }
 
       parameterOptions.push(options);
