@@ -1,6 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { Observable, type Observer, type Subscription } from "rxjs";
 import { SafeSubscriber, type Subscriber } from "rxjs/internal/Subscriber";
+import { logger } from "./logger";
 import type { DeepReadonly } from "./types";
 
 // global error handling (before shutdown)
@@ -18,7 +19,7 @@ export const globalDefaultHandler: GlobalErrorHandler = (
   exception?: Readonly<Error>,
   kill?: boolean,
 ) => {
-  console.log(
+  logger.log(
     `Program is about to ${!(kill ?? false) ? "(NOT) " : ""}exit${
       exitCode === undefined ? "" : ` with code "${exitCode}"`
     }${signal === undefined ? "" : ` with signal "${signal}"`}${
@@ -129,18 +130,18 @@ export function errorHandler(error: unknown, args?: readonly unknown[]) {
     const botError: BotError = error;
 
     interaction?.reply(`${botError.message}`).catch(() => {
-      console.warn("couldn't reply after error");
+      logger.warn("couldn't reply after error");
     });
 
     if (botError.log !== false) {
-      console.warn(
+      logger.warn(
         `An error occurred in a request: ${botError.message} (${
           botError.message
         })${botError.log === "WITH_STACK" ? `\n${botError.stack}` : ""}`,
       );
     }
   } else {
-    console.error(
+    logger.error(
       `An unknown error occurred in a request: ${String(error)}${
         typeof error === "object" && error && "stack" in error
           ? `\n${String(error.stack)}`
@@ -148,7 +149,7 @@ export function errorHandler(error: unknown, args?: readonly unknown[]) {
       }`,
     );
     interaction?.reply("an unexpected error ocurred").catch(() => {
-      console.warn("couldn't reply after error");
+      logger.warn("couldn't reply after error");
     });
   }
 }
