@@ -20,7 +20,7 @@ import type {
   InteractionAttribute,
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
-
+// TODO less repetition
 export class SlashCommand implements ChatInputApplicationCommandData {
   public readonly type = ApplicationCommandType.ChatInput as const;
 

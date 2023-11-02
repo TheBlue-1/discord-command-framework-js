@@ -47,6 +47,7 @@ export class Interpreter {
 
     await interaction.reply("command is being executed...");
     // TODO multiple replies
+    // TODO non string replies
     await interaction.editReply(
       `${
         (
