@@ -1,9 +1,11 @@
 import {
   Client,
+  type ApplicationCommand,
   type AutocompleteInteraction,
   type ChatInputCommandInteraction,
   type ClientEvents,
   type ClientOptions,
+  type GuildResolvable,
   type Interaction,
 } from "discord.js";
 import deepEquals from "fast-deep-equal";
@@ -20,14 +22,19 @@ import {
 } from "./slash-command-generator";
 import type { DeepReadonly } from "./types";
 
+type ReadonlyApplicationCommand = DeepReadonly<
+  ApplicationCommand<{
+    guild: GuildResolvable;
+  }>
+>;
 export class Bot {
   protected data:
     | {
-        commandInteraction$: Observable<
+        commandInteraction$: ErrorHandlingObservable<
           DeepReadonly<ChatInputCommandInteraction>
         >;
-        createdInteraction$: Observable<Interaction>;
-        autocompleteParameter$: Observable<AutocompleteInteraction>;
+        createdInteraction$: ErrorHandlingObservable<Interaction>;
+        autocompleteParameter$: ErrorHandlingObservable<AutocompleteInteraction>;
         interpreter: Interpreter;
       }
     | undefined = undefined;
@@ -88,7 +95,7 @@ export class Bot {
 
     const autocompleteParameter$ = createdInteraction$.pipe(
       takeWhile((i) => i.isAutocomplete()),
-      map((i) => i as AutocompleteInteraction),
+      map((i) => i as DeepReadonly<AutocompleteInteraction>),
     );
 
     const onReady = new Promise((resolve, reject) => {
@@ -123,14 +130,16 @@ export class Bot {
     const removed: Promise<unknown>[] = [];
 
     for (const command of commands) {
-      const oldIndex = oldCommands.findIndex((c) => c.name === command.name);
+      const oldIndex = oldCommands.findIndex(
+        (c: ReadonlyApplicationCommand) => c.name === command.name,
+      );
       if (oldIndex === -1) {
         created.push(this.client.application.commands.create(command));
         continue;
       }
       const [oldCommand] = oldCommands.splice(oldIndex, 1);
       if (!oldCommand) throw new Error("impossible case reached");
-      // TODO make sure oldCommand also has type as enum value
+
       if (deepEquals(command, oldCommand)) {
         continue;
       }

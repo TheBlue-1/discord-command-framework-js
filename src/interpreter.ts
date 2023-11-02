@@ -96,29 +96,35 @@ export class Interpreter {
       switch (parameter.type) {
         case ApplicationCommandOptionType.Boolean:
           params.push(interaction.options.getBoolean(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.User:
           params.push(interaction.options.getUser(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.Role:
           params.push(interaction.options.getRole(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.Mentionable:
           params.push(
             interaction.options.getMentionable(parameter.name, required),
           );
-          continue;
+          break;
         case ApplicationCommandOptionType.Channel:
           params.push(interaction.options.getChannel(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.Integer:
           params.push(interaction.options.getInteger(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.Number:
           params.push(interaction.options.getNumber(parameter.name, required));
-          continue;
+          break;
         case ApplicationCommandOptionType.String:
           params.push(interaction.options.getString(parameter.name, required));
+          break;
+        case ApplicationCommandOptionType.Attachment: {
+          throw new Error(
+            "Not implemented yet: ApplicationCommandOptionType.Attachment case",
+          );
+        }
       }
       if (
         params[params.length - 1] === undefined &&

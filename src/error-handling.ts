@@ -210,7 +210,7 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
     };
   }
 }
-export class ErrorHandlingObservable<T> extends Observable<T> {
+export class ErrorHandlingObservable<T> extends Observable<DeepReadonly<T>> {
   public static fromObservable<T>(
     observable: DeepReadonly<Observable<T>>,
   ): ErrorHandlingObservable<T> {
@@ -226,9 +226,9 @@ export class ErrorHandlingObservable<T> extends Observable<T> {
 
   public override subscribe(
     observerOrNext?:
-      | Readonly<Partial<Observer<T>>>
-      | ((value: T) => Promise<void>)
-      | ((value: T) => void)
+      | Readonly<Partial<Observer<DeepReadonly<T>>>>
+      | ((value: DeepReadonly<T>) => Promise<void>)
+      | ((value: DeepReadonly<T>) => void)
       | null,
     error?: ((error: unknown) => Promise<void> | void) | null,
     complete?: (() => Promise<void> | void) | null,
