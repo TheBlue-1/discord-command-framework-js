@@ -1,9 +1,9 @@
 import {
   Client,
   type AutocompleteInteraction,
+  type ChatInputCommandInteraction,
   type ClientEvents,
   type ClientOptions,
-  type CommandInteraction,
   type Interaction,
 } from "discord.js";
 import deepEquals from "fast-deep-equal";
@@ -18,11 +18,14 @@ import {
   SlashCommandGenerator,
   type SlashCommand,
 } from "./slash-command-generator";
+import type { DeepReadonly } from "./types";
 
 export class Bot {
   protected data:
     | {
-        commandInteraction$: Observable<CommandInteraction>;
+        commandInteraction$: Observable<
+          DeepReadonly<ChatInputCommandInteraction>
+        >;
         createdInteraction$: Observable<Interaction>;
         autocompleteParameter$: Observable<AutocompleteInteraction>;
         interpreter: Interpreter;
@@ -75,8 +78,8 @@ export class Bot {
 
     const createdInteraction$ = this.listenTo("interactionCreate");
     const commandInteraction$ = createdInteraction$.pipe(
-      takeWhile((i) => i.isCommand()),
-      map((i) => i as CommandInteraction),
+      takeWhile((i: DeepReadonly<Interaction>) => i.isChatInputCommand()),
+      map((i) => i as DeepReadonly<ChatInputCommandInteraction>),
     );
     const interpreter = new Interpreter(
       commandInteraction$,
@@ -111,7 +114,9 @@ export class Bot {
   }
 
   private async registerCommands(commands: readonly SlashCommand[]) {
-    const oldCommands = [...(await this.client.application.commands.fetch())];
+    const oldCommands = [
+      ...(await this.client.application.commands.fetch()).values(),
+    ];
 
     const created: Promise<unknown>[] = [];
     const edited: Promise<unknown>[] = [];

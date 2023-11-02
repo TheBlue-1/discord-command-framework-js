@@ -1,6 +1,6 @@
 import {
   ApplicationCommandOptionType,
-  type CommandInteraction,
+  type ChatInputCommandInteraction,
 } from "discord.js";
 import type { ReadOnlyCommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
@@ -17,7 +17,7 @@ export class Interpreter {
 
   public constructor(
     commandInteraction$: DeepReadonly<
-      ErrorHandlingObservable<CommandInteraction>
+      ErrorHandlingObservable<DeepReadonly<ChatInputCommandInteraction>>
     >,
     commandGroups: ReadOnlyCommandGroupRegister,
   ) {
@@ -30,7 +30,9 @@ export class Interpreter {
     }
   }
 
-  public async callCommand(interaction: DeepReadonly<CommandInteraction>) {
+  public async callCommand(
+    interaction: DeepReadonly<ChatInputCommandInteraction>,
+  ) {
     const command = this.findCommand(interaction);
     if (!command) {
       await interaction.reply("command not found");
@@ -54,23 +56,27 @@ export class Interpreter {
   }
 
   protected findCommand(
-    interaction: DeepReadonly<CommandInteraction>,
-  ): CommandInfo | SubCommandInfo | undefined {
+    interaction: DeepReadonly<ChatInputCommandInteraction>,
+  ): CommandInfo | Readonly<SubCommandInfo> | undefined {
     if (interaction.options.getSubcommand(false) === null) {
       return this.commands[interaction.commandName];
     }
     const commandArea = this.commandAreas[interaction.commandName];
     if (interaction.options.getSubcommandGroup(false) === null) {
-      return commandArea?.subCommands[interaction.options.getSubcommand()];
+      return commandArea?.subCommands[interaction.options.getSubcommand(true)];
     }
     const subCommandGroup =
-      commandArea?.subCommandGroups[interaction.options.getSubcommandGroup()];
-    return subCommandGroup?.subCommands[interaction.options.getSubcommand()];
+      commandArea?.subCommandGroups[
+        interaction.options.getSubcommandGroup(true)
+      ];
+    return subCommandGroup?.subCommands[
+      interaction.options.getSubcommand(true)
+    ];
   }
 
   protected static prepareParameters(
     command: Readonly<CommandInfo | SubCommandInfo>,
-    interaction: DeepReadonly<CommandInteraction>,
+    interaction: DeepReadonly<ChatInputCommandInteraction>,
   ): unknown[] {
     const params: unknown[] = [];
     for (const parameter of command.parameters) {
@@ -89,10 +95,10 @@ export class Interpreter {
 
       switch (parameter.type) {
         case ApplicationCommandOptionType.Boolean:
-          params.push(interaction.options.get(parameter.name, required)?.value);
+          params.push(interaction.options.getBoolean(parameter.name, required));
           continue;
         case ApplicationCommandOptionType.User:
-          params.push(interaction.options.get(parameter.name, required)?.user);
+          params.push(interaction.options.getUser(parameter.name, required));
           continue;
         case ApplicationCommandOptionType.Role:
           params.push(interaction.options.getRole(parameter.name, required));
