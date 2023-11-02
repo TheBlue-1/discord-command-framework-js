@@ -183,7 +183,6 @@ export class ErrorHandlingSubscriber<T> extends SafeSubscriber<T> {
       throw err;
     };
 
-    // following 3 were set in destination before
     this.next = next
       ? ErrorHandlingSubscriber.wrapForErrorHandling(next)
       : noop;
