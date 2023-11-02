@@ -24,6 +24,7 @@ export class Interpreter {
     commandInteraction$.subscribe(async (interaction) => {
       await this.callCommand(interaction);
     });
+    console.log(commandGroups);
     for (const group of Object.values(commandGroups)) {
       Object.assign(this.commandAreas, group.commandAreas);
       Object.assign(this.commands, group.commands);
@@ -86,12 +87,6 @@ export class Interpreter {
       }
 
       const required = !(parameter.options.optional ?? false);
-
-      const data = interaction.options.get(parameter.name, required);
-
-      if (data?.type === parameter.type) {
-        throw new Error("invalid parameter type received");
-      }
 
       switch (parameter.type) {
         case ApplicationCommandOptionType.Boolean:
