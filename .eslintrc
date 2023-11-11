@@ -163,7 +163,46 @@
         ],
         "@typescript-eslint/explicit-member-accessibility": "error",
         "@typescript-eslint/method-signature-style": ["error", "method"],
-        "@typescript-eslint/naming-convention": "off", // todo configure
+        "@typescript-eslint/naming-convention": [
+          "error",
+          // default to camelCase
+          {
+            "selector": "default",
+            "format": ["camelCase"],
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid"
+          },
+          // unused starts with _
+          {
+            "selector": "default",
+            "modifiers": ["unused"],
+            "format": ["camelCase"],
+            "leadingUnderscore": "require",
+            "trailingUnderscore": "forbid"
+          },
+          // tyeLike should be PascalCase
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"],
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid"
+          },
+          // decorators should be PascalCase. (But can't be forced)
+          {
+            "selector": "function",
+            "format": ["PascalCase", "camelCase"],
+            "modifiers": ["exported", "global"],
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid"
+          },
+          {
+            "selector": "function",
+            "format": ["camelCase"],
+            "modifiers": ["async"],
+            "leadingUnderscore": "forbid",
+            "trailingUnderscore": "forbid"
+          }
+        ],
         "@typescript-eslint/no-confusing-non-null-assertion": "error",
         "@typescript-eslint/no-confusing-void-expression": [
           "error",

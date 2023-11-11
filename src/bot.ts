@@ -18,7 +18,7 @@ import {
 import { Interpreter } from "./interpreter";
 import { logger } from "./logger";
 import {
-  SlashCommandGenerator,
+  slashCommandGenerator,
   type SlashCommand,
 } from "./slash-command-generator";
 import type { DeepReadonly } from "./types";
@@ -40,11 +40,11 @@ export class Bot {
       }
     | undefined = undefined;
 
-  protected _client: Client;
+  protected unreadyClient: Client;
 
   public get client(): Client<true> {
-    if (!this._client.isReady()) throw new Error("bot not started");
-    return this._client;
+    if (!this.unreadyClient.isReady()) throw new Error("bot not started");
+    return this.unreadyClient;
   }
 
   public constructor(
@@ -52,13 +52,13 @@ export class Bot {
     // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- discord wants a mutable object
     options: ClientOptions = { intents: [] },
   ) {
-    this._client = new Client(options);
+    this.unreadyClient = new Client(options);
   }
 
   public listenTo<T extends keyof ClientEvents>(
     event: T,
   ): ErrorHandlingObservable<
-    ClientEvents[T] extends { 1: unknown }
+    ClientEvents[T] extends [unknown, unknown, ...unknown[]]
       ? ClientEvents[T]
       : ClientEvents[T][0]
   >;
@@ -69,7 +69,7 @@ export class Bot {
       (
         subscriber: Readonly<Subscriber<ClientEvents[T] | ClientEvents[T][0]>>,
       ) => {
-        this._client.on(event, (...params: ClientEvents[T]) => {
+        this.unreadyClient.on(event, (...params: ClientEvents[T]) => {
           if (params.length === 1) {
             subscriber.next(params[0]);
           } else subscriber.next(params);
@@ -82,7 +82,7 @@ export class Bot {
   public async start(): Promise<void> {
     logger.log("bot starting");
 
-    const commands = SlashCommandGenerator.generate(commandGroupRegister);
+    const commands = slashCommandGenerator.generate(commandGroupRegister);
 
     const createdInteraction$ = this.listenTo("interactionCreate");
     const commandInteraction$ = createdInteraction$.pipe(
@@ -100,11 +100,11 @@ export class Bot {
     );
 
     const onReady = new Promise((resolve, reject) => {
-      this._client.once("ready", resolve);
+      this.unreadyClient.once("ready", resolve);
       setTimeout(reject, 10000);
     });
 
-    await this._client.login(this.token);
+    await this.unreadyClient.login(this.token);
     await onReady;
     logger.log("bot online");
 

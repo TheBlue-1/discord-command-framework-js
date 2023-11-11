@@ -2,10 +2,10 @@ import { Bot, initGlobalErrorHandlers } from "discord-command-framework-js";
 import { logger } from "../../src/logger";
 import "./testCommandGroups";
 
-const LocalConfigPath = "./local.config.json";
+const localConfigPath = "./local.config.json";
 
 async function readConfig() {
-  const config = (await import(LocalConfigPath)) as unknown;
+  const config = (await import(localConfigPath)) as unknown;
 
   const token =
     typeof config === "object" &&

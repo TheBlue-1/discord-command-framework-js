@@ -46,12 +46,12 @@ function globalHandler(
 }
 
 const globalHandlers = {
-  SIGINT: globalHandler.bind(undefined, undefined, "SIGINT", undefined),
-  SIGHUP: globalHandler.bind(undefined, undefined, "SIGHUP", undefined),
-  SIGQUIT: globalHandler.bind(undefined, undefined, "SIGQUIT", undefined),
-  SIGTERM: globalHandler.bind(undefined, undefined, "SIGTERM", undefined),
-  SIGUSR1: globalHandler.bind(undefined, undefined, "SIGUSR1", undefined),
-  SIGUSR2: globalHandler.bind(undefined, undefined, "SIGUSR2", undefined),
+  sigInt: globalHandler.bind(undefined, undefined, "SIGINT", undefined),
+  sigHup: globalHandler.bind(undefined, undefined, "SIGHUP", undefined),
+  sigQuit: globalHandler.bind(undefined, undefined, "SIGQUIT", undefined),
+  sigTerm: globalHandler.bind(undefined, undefined, "SIGTERM", undefined),
+  sigUsr1: globalHandler.bind(undefined, undefined, "SIGUSR1", undefined),
+  sigUsr2: globalHandler.bind(undefined, undefined, "SIGUSR2", undefined),
   uncaughtException: (e: Readonly<Error>) =>
     globalHandler.bind(undefined, undefined, undefined, e, false)(),
   exit: (code: number, signal: string) =>
@@ -62,23 +62,23 @@ export function initGlobalErrorHandlers(
   handler: GlobalErrorHandler = globalDefaultHandler,
 ): void {
   currentGlobalErrorHandler = handler;
-  process.on("SIGINT", globalHandlers.SIGINT);
-  process.on("SIGHUP", globalHandlers.SIGHUP);
-  process.on("SIGQUIT", globalHandlers.SIGQUIT);
-  process.on("SIGTERM", globalHandlers.SIGTERM);
-  process.on("SIGUSR1", globalHandlers.SIGUSR1);
-  process.on("SIGUSR2", globalHandlers.SIGUSR2);
+  process.on("SIGINT", globalHandlers.sigInt);
+  process.on("SIGHUP", globalHandlers.sigHup);
+  process.on("SIGQUIT", globalHandlers.sigQuit);
+  process.on("SIGTERM", globalHandlers.sigTerm);
+  process.on("SIGUSR1", globalHandlers.sigUsr1);
+  process.on("SIGUSR2", globalHandlers.sigUsr2);
   process.on("uncaughtException", globalHandlers.uncaughtException);
   process.on("exit", globalHandlers.exit);
 }
 
 export function removeGlobalErrorHandlers() {
-  process.removeListener("SIGINT", globalHandlers.SIGINT);
-  process.removeListener("SIGHUP", globalHandlers.SIGHUP);
-  process.removeListener("SIGQUIT", globalHandlers.SIGQUIT);
-  process.removeListener("SIGTERM", globalHandlers.SIGTERM);
-  process.removeListener("SIGUSR1", globalHandlers.SIGUSR1);
-  process.removeListener("SIGUSR2", globalHandlers.SIGUSR2);
+  process.removeListener("SIGINT", globalHandlers.sigInt);
+  process.removeListener("SIGHUP", globalHandlers.sigHup);
+  process.removeListener("SIGQUIT", globalHandlers.sigQuit);
+  process.removeListener("SIGTERM", globalHandlers.sigTerm);
+  process.removeListener("SIGUSR1", globalHandlers.sigUsr1);
+  process.removeListener("SIGUSR2", globalHandlers.sigUsr2);
   process.removeListener("uncaughtException", globalHandlers.uncaughtException);
   process.removeListener("exit", globalHandlers.exit);
 }
