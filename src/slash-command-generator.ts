@@ -20,7 +20,7 @@ import type {
   InteractionAttribute,
   InteractionParameter,
 } from "./Decorators/parameter/parameter.types";
-// TODO less repetition
+
 export class SlashCommand implements ChatInputApplicationCommandData {
   public readonly type = ApplicationCommandType.ChatInput as const;
 
@@ -86,7 +86,7 @@ export class CommandAutocompleteOption<T extends number | string> {
     public readonly description: string,
     public readonly required: boolean,
   ) {
-    this.autocomplete = false as true; // TODO think of something
+    this.autocomplete = false as true;
   }
 }
 export class CommandChannelOption
@@ -259,7 +259,7 @@ export const slashCommandGenerator = {
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices as readonly CommandChoice<number>[], // TODO better typing
+              parameter.options.choices as readonly CommandChoice<number>[],
               !(parameter.options.optional ?? false),
             );
             break;
@@ -277,7 +277,7 @@ export const slashCommandGenerator = {
               parameter.type,
               parameter.name,
               parameter.description,
-              parameter.options.choices as readonly CommandChoice<string>[], // TODO better typing
+              parameter.options.choices as readonly CommandChoice<string>[],
               !(parameter.options.optional ?? false),
             );
             break;
@@ -293,7 +293,7 @@ export const slashCommandGenerator = {
           throw new Error(
             "Not implemented yet: ApplicationCommandOptionType.Attachment case",
           );
-        } // TODO implement
+        }
       }
 
       parameterOptions.push(options);

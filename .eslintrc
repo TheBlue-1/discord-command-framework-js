@@ -120,7 +120,7 @@
           "always",
           { "exceptAfterSingleLine": true }
         ],
-        "padding-line-between-statements": "off" //todo configure
+        "padding-line-between-statements": "off" //needs to be configured
       }
     },
     {
@@ -294,7 +294,7 @@
           { "exceptAfterSingleLine": true }
         ],
         "padding-line-between-statements": "off",
-        "@typescript-eslint/padding-line-between-statements": "off" // todo configure
+        "@typescript-eslint/padding-line-between-statements": "off" //needs to be configured
       }
     },
     {
