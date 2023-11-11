@@ -38,15 +38,11 @@ export class Interpreter {
       await interaction.reply("command not found");
       return;
     }
-    // const options = command.getOptions();
-
-    // TODO (guess: use options)
 
     const parameters = Interpreter.prepareParameters(command, interaction);
 
     await interaction.reply("command is being executed...");
-    // TODO multiple replies
-    // TODO non string replies
+
     await interaction.editReply(
       `${
         (

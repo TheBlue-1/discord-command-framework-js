@@ -3,7 +3,6 @@ import type {
   InteractionParameter,
 } from "./parameter.types";
 
-// TODO add autocompletions
 export const parameterRegister: Record<
   string,
   Record<string, (InteractionAttribute | InteractionParameter)[]>
