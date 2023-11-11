@@ -140,13 +140,13 @@ export type CommandOptionParameterType = Exclude<
   CommandOptionSubOptionResolvableType
 >;
 
-export const SlashCommandGenerator = {
+export const slashCommandGenerator = {
   generate(groups: ReadOnlyCommandGroupRegister): SlashCommand[] {
     const slashCommands: SlashCommand[] = [];
     for (const group of Object.values(groups)) {
       for (const command of Object.values(group.commands)) {
         const parameterOptions =
-          SlashCommandGenerator.getCommandParameterOptions(command.parameters);
+          slashCommandGenerator.getCommandParameterOptions(command.parameters);
         slashCommands.push(
           new SlashCommand(command.name, command.description, parameterOptions),
         );
@@ -156,7 +156,7 @@ export const SlashCommandGenerator = {
 
         for (const subCommand of Object.values(commandArea.subCommands)) {
           const parameterOptions =
-            SlashCommandGenerator.getCommandParameterOptions(
+            slashCommandGenerator.getCommandParameterOptions(
               subCommand.parameters,
             );
 
@@ -175,7 +175,7 @@ export const SlashCommandGenerator = {
           const innerSubCommandOptions: SubCommandOption[] = [];
           for (const subCommand of Object.values(subCommandGroup.subCommands)) {
             const parameterOptions =
-              SlashCommandGenerator.getCommandParameterOptions(
+              slashCommandGenerator.getCommandParameterOptions(
                 subCommand.parameters,
               );
 
