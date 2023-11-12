@@ -4,11 +4,13 @@ import {
 } from "discord.js";
 import type { ReadOnlyCommandGroupRegister } from "./Decorators/command/command.helpers";
 import type {
+  AccessLevel,
   CommandAreaInfo,
   CommandInfo,
   SubCommandInfo,
 } from "./Decorators/command/command.types";
-import type { ErrorHandlingObservable } from "./error-handling";
+import type { BotOptions } from "./bot";
+import { BotError, type ErrorHandlingObservable } from "./error-handling";
 import type { DeepReadonly } from "./types";
 
 export class Interpreter {
@@ -20,6 +22,7 @@ export class Interpreter {
       ErrorHandlingObservable<DeepReadonly<ChatInputCommandInteraction>>
     >,
     commandGroups: ReadOnlyCommandGroupRegister,
+    private readonly botOptions: BotOptions,
   ) {
     commandInteraction$.subscribe(async (interaction) => {
       await this.callCommand(interaction);
@@ -30,6 +33,38 @@ export class Interpreter {
     }
   }
 
+  private checkAccess(
+    level: AccessLevel,
+    interaction: DeepReadonly<ChatInputCommandInteraction>,
+  ) {
+    switch (level) {
+      case "BotAdmin":
+        if (!(this.botOptions.botAdmins ?? []).includes(interaction.user.id)) {
+          throw new BotError("You have to be a bot admin to use this command");
+        }
+        break;
+      case "GuildAdmin": {
+        const permissions = interaction.member?.permissions;
+        if (permissions === undefined) {
+          throw new BotError(
+            "You have to be in a guild/server to use this command",
+          );
+        }
+        if (!(typeof permissions === "object")) {
+          throw new Error("Unexpected permission format");
+        }
+        if (!permissions.has("Administrator")) {
+          throw new BotError(
+            "You have to be a guild/server admin to use this command",
+          );
+        }
+        break;
+      }
+      case "Everyone":
+        break;
+    }
+  }
+
   public async callCommand(
     interaction: DeepReadonly<ChatInputCommandInteraction>,
   ) {
@@ -37,6 +72,12 @@ export class Interpreter {
     if (!command) {
       await interaction.reply("command not found");
       return;
+    }
+
+    const options = command.getOptions(this.botOptions);
+
+    if (options.access) {
+      this.checkAccess(options.access, interaction);
     }
 
     const parameters = Interpreter.prepareParameters(command, interaction);

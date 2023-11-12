@@ -30,10 +30,10 @@ export abstract class Configurable {
     protected readonly options: CommandOptions,
   ) {}
 
-  public getOptions(): CommandOptions {
+  public getOptions(rootOptions: CommandOptions): CommandOptions {
     return this.parent
-      ? mergeOptions(this.parent.getOptions(), this.options)
-      : this.options;
+      ? mergeOptions(this.parent.getOptions(rootOptions), this.options)
+      : mergeOptions(rootOptions, this.options);
   }
 
   public setParent(parent: Readonly<Configurable>) {

@@ -27,7 +27,7 @@ async function start() {
   const config = await readConfig();
   const { token } = config;
 
-  const bot = new Bot(token);
+  const bot = new Bot(token, undefined, { access: "BotAdmin" });
 
   await bot.start();
 }

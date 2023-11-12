@@ -11,6 +11,7 @@ import {
 import deepEquals from "fast-deep-equal";
 import { Observable, map, takeWhile, type Subscriber } from "rxjs";
 import { commandGroupRegister } from "./Decorators/command/command.helpers";
+import type { CommandOptions } from "./Decorators/command/command.types";
 import {
   handleObservableErrors,
   type ErrorHandlingObservable,
@@ -28,6 +29,10 @@ type ReadonlyApplicationCommand = DeepReadonly<
     guild: GuildResolvable;
   }>
 >;
+
+export type BotOptions = CommandOptions & {
+  readonly botAdmins?: readonly string[];
+};
 export class Bot {
   protected data:
     | {
@@ -51,6 +56,7 @@ export class Bot {
     private readonly token: string,
     // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types -- discord wants a mutable object
     options: ClientOptions = { intents: [] },
+    private readonly botOptions: BotOptions = {},
   ) {
     this.unreadyClient = new Client(options);
   }
@@ -92,6 +98,7 @@ export class Bot {
     const interpreter = new Interpreter(
       commandInteraction$,
       commandGroupRegister,
+      this.botOptions,
     );
 
     const autocompleteParameter$ = createdInteraction$.pipe(
